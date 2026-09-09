@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+package-lock.json
+
+# Archivos de datos (los JSON se guardan pero no se suben)
+data/*.json
+!data/.gitkeep
+
+# Archivos temporales
+temp_*.js
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Servidor
+.env
