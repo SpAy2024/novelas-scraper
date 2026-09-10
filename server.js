@@ -53,6 +53,23 @@ try {
 // ============================================
 // FUNCIONES PARA FIREBASE
 // ============================================
+// ============================================
+// FUNCIÓN PARA DETECTAR TEMPORADA
+// ============================================
+function detectarTemporada(nombre) {
+  // Buscar números al final: "El Señor de los Cielos 7" → 7
+  const match = nombre.match(/(\d+)\s*$/);
+  if (match) return match[1];
+  
+  // Buscar "temporada X" o "season X"
+  const matchTemp = nombre.match(/(?:temporada|season|parte|part)\s*(\d+)/i);
+  if (matchTemp) return matchTemp[1];
+  
+  return "1"; // Por defecto, temporada 1
+}
+
+
+
 // Guardar en Firebase usando tmdb_id como clave
 async function guardarEnFirebase(tmdbId, data) {
   if (!firebaseInicializado) {
@@ -441,6 +458,9 @@ app.get('/api/novela/:tmdbId/capitulos', async (req, res) => {
 
 
 // Iniciar scraping
+// ============================================
+// ENDPOINT SCRAPE CON TEMPORADAS
+// ============================================
 app.post('/api/scrape', async (req, res) => {
   const { url, nombre, limite, tmdb_id } = req.body;
   
@@ -452,38 +472,65 @@ app.post('/api/scrape', async (req, res) => {
   }
   
   const tmdbIdFinal = parseInt(tmdb_id);
+  const temporada = detectarTemporada(nombre);
+  
   console.log(`\n🚀 Iniciando scraping de: ${nombre}`);
   console.log(`🆔 TMDB ID (manual): ${tmdbIdFinal}`);
+  console.log(`📺 Temporada detectada: ${temporada}`);
   
   try {
-    // ========== OBTENER POSTER DE TMDB USANDO EL ID MANUAL ==========
+    // ========== OBTENER POSTER DE TMDB ==========
     let tmdb_poster = null;
     
     try {
-      // Intentar como TV primero
       const tvUrl = `https://api.themoviedb.org/3/tv/${tmdbIdFinal}?api_key=${TMDB_API_KEY}&language=es`;
       const tvResponse = await axios.get(tvUrl);
       
       if (tvResponse.data && tvResponse.data.poster_path) {
         tmdb_poster = `${TMDB_IMAGE_BASE}${tvResponse.data.poster_path}`;
-        console.log(`🖼️ Poster obtenido (TV): ${tmdb_poster}`);
+        console.log(`🖼️ Poster obtenido: ${tmdb_poster}`);
       }
     } catch (error) {
-      // Si no es TV, intentar como película
       try {
         const movieUrl = `https://api.themoviedb.org/3/movie/${tmdbIdFinal}?api_key=${TMDB_API_KEY}&language=es`;
         const movieResponse = await axios.get(movieUrl);
         
         if (movieResponse.data && movieResponse.data.poster_path) {
           tmdb_poster = `${TMDB_IMAGE_BASE}${movieResponse.data.poster_path}`;
-          console.log(`🖼️ Poster obtenido (Movie): ${tmdb_poster}`);
         }
       } catch (e) {
         console.warn('⚠️ No se pudo obtener poster de TMDB');
       }
     }
     
-    // Obtener lista de capítulos
+    // ========== LEER DATOS EXISTENTES DE FIREBASE ==========
+    let datosExistentes = await leerDeFirebase(tmdbIdFinal.toString());
+    
+    if (!datosExistentes) {
+      // Si no existe, crear estructura base
+      datosExistentes = {
+        novela: nombre.replace(/\s+\d+\s*$/, '').trim(), // Quitar número al final
+        tmdb_id: tmdbIdFinal,
+        poster: tmdb_poster,
+        temporadas: {}
+      };
+      console.log('📝 Creando nueva estructura en Firebase');
+    } else {
+      console.log('📂 Estructura existente encontrada');
+      console.log(`📺 Temporadas existentes: ${Object.keys(datosExistentes.temporadas || {}).join(', ') || 'ninguna'}`);
+      
+      // Actualizar poster si no existe
+      if (!datosExistentes.poster && tmdb_poster) {
+        datosExistentes.poster = tmdb_poster;
+      }
+    }
+    
+    // Inicializar temporadas si no existe
+    if (!datosExistentes.temporadas) {
+      datosExistentes.temporadas = {};
+    }
+    
+    // ========== OBTENER CAPÍTULOS ==========
     console.log('📚 Obteniendo lista de capítulos...');
     const response = await axios.get(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
@@ -559,32 +606,46 @@ app.post('/api/scrape', async (req, res) => {
       await new Promise(r => setTimeout(r, 500));
     }
     
-    // Preparar datos (usando el TMDB ID manual)
-    const data = {
-      novela: nombre,
-      url: url,
-      tmdb_id: tmdbIdFinal,
-      id: tmdbIdFinal,
+    // ========== AGREGAR TEMPORADA A LA ESTRUCTURA ==========
+    datosExistentes.temporadas[temporada] = {
+      titulo: nombre,
       fecha_extraccion: new Date().toISOString(),
       total_capitulos: resultados.length,
-      capitulos: resultados,
-      poster: tmdb_poster
+      url: url,
+      capitulos: resultados
     };
     
-    // Guardar en GitHub (usando TMDB ID como nombre de archivo)
-    const fileName = `${tmdbIdFinal}_capitulos.json`;
-    await guardarEnGitHub(fileName, data);
+    // Actualizar poster si es necesario
+    if (tmdb_poster) {
+      datosExistentes.poster = tmdb_poster;
+    }
     
-    // Guardar en Firebase (usando TMDB ID como clave)
-    await guardarEnFirebase(tmdbIdFinal.toString(), data);
+    // Calcular total de temporadas y capítulos
+    const totalTemporadas = Object.keys(datosExistentes.temporadas).length;
+    const totalCapitulos = Object.values(datosExistentes.temporadas)
+      .reduce((sum, t) => sum + (t.total_capitulos || 0), 0);
+    
+    datosExistentes.total_temporadas = totalTemporadas;
+    datosExistentes.total_capitulos = totalCapitulos;
+    
+    // ========== GUARDAR EN GITHUB ==========
+    const fileName = `${tmdbIdFinal}_capitulos.json`;
+    await guardarEnGitHub(fileName, datosExistentes);
+    
+    // ========== GUARDAR EN FIREBASE ==========
+    await guardarEnFirebase(tmdbIdFinal.toString(), datosExistentes);
     
     console.log(`✅ Scraping completado: ${resultados.length} capítulos guardados`);
-    console.log(`🆔 TMDB ID usado: ${tmdbIdFinal}`);
+    console.log(`📺 Temporada ${temporada} agregada`);
+    console.log(`📊 Total: ${totalTemporadas} temporadas, ${totalCapitulos} capítulos`);
     
     res.json({ 
       success: true, 
-      message: 'Scraping completado y guardado en GitHub + Firebase',
-      tmdb_id: tmdbIdFinal
+      message: `Temporada ${temporada} agregada correctamente`,
+      tmdb_id: tmdbIdFinal,
+      temporada: temporada,
+      total_temporadas: totalTemporadas,
+      total_capitulos: totalCapitulos
     });
     
   } catch (error) {
@@ -592,7 +653,6 @@ app.post('/api/scrape', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // Ruta principal
 app.get('/', (req, res) => {
