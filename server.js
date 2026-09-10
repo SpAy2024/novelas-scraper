@@ -442,55 +442,46 @@ app.get('/api/novela/:tmdbId/capitulos', async (req, res) => {
 
 // Iniciar scraping
 app.post('/api/scrape', async (req, res) => {
-  const { url, nombre, limite, poster } = req.body;
+  const { url, nombre, limite, tmdb_id } = req.body;
   
-  if (!url || !nombre) {
+  // TMDB ID es OBLIGATORIO
+  if (!url || !nombre || !tmdb_id) {
     return res.status(400).json({ 
-      error: 'Se requiere URL y nombre' 
+      error: 'Se requiere URL, nombre y tmdb_id (obligatorio)' 
     });
   }
   
+  const tmdbIdFinal = parseInt(tmdb_id);
   console.log(`\n🚀 Iniciando scraping de: ${nombre}`);
+  console.log(`🆔 TMDB ID (manual): ${tmdbIdFinal}`);
   
   try {
-    // ========== OBTENER TMDB ID AUTOMÁTICAMENTE ==========
-    let tmdb_id = null;
-    let tmdb_poster = poster || null;
-    
-    console.log('🔍 Buscando TMDB ID para:', nombre);
+    // ========== OBTENER POSTER DE TMDB USANDO EL ID MANUAL ==========
+    let tmdb_poster = null;
     
     try {
-      // Buscar en TV primero
-      const tvUrl = `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(nombre)}&language=es`;
+      // Intentar como TV primero
+      const tvUrl = `https://api.themoviedb.org/3/tv/${tmdbIdFinal}?api_key=${TMDB_API_KEY}&language=es`;
       const tvResponse = await axios.get(tvUrl);
       
-      if (tvResponse.data.results && tvResponse.data.results.length > 0) {
-        const result = tvResponse.data.results[0];
-        tmdb_id = result.id;
-        if (!tmdb_poster && result.poster_path) {
-          tmdb_poster = `${TMDB_IMAGE_BASE}${result.poster_path}`;
-        }
-        console.log(`✅ TMDB ID encontrado (TV): ${tmdb_id}`);
-      } else {
-        // Buscar en películas
-        const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(nombre)}&language=es`;
-        const movieResponse = await axios.get(movieUrl);
-        
-        if (movieResponse.data.results && movieResponse.data.results.length > 0) {
-          const result = movieResponse.data.results[0];
-          tmdb_id = result.id;
-          if (!tmdb_poster && result.poster_path) {
-            tmdb_poster = `${TMDB_IMAGE_BASE}${result.poster_path}`;
-          }
-          console.log(`✅ TMDB ID encontrado (Movie): ${tmdb_id}`);
-        }
+      if (tvResponse.data && tvResponse.data.poster_path) {
+        tmdb_poster = `${TMDB_IMAGE_BASE}${tvResponse.data.poster_path}`;
+        console.log(`🖼️ Poster obtenido (TV): ${tmdb_poster}`);
       }
     } catch (error) {
-      console.warn('⚠️ No se pudo obtener TMDB ID:', error.message);
+      // Si no es TV, intentar como película
+      try {
+        const movieUrl = `https://api.themoviedb.org/3/movie/${tmdbIdFinal}?api_key=${TMDB_API_KEY}&language=es`;
+        const movieResponse = await axios.get(movieUrl);
+        
+        if (movieResponse.data && movieResponse.data.poster_path) {
+          tmdb_poster = `${TMDB_IMAGE_BASE}${movieResponse.data.poster_path}`;
+          console.log(`🖼️ Poster obtenido (Movie): ${tmdb_poster}`);
+        }
+      } catch (e) {
+        console.warn('⚠️ No se pudo obtener poster de TMDB');
+      }
     }
-    
-    // Si no se encontró TMDB ID, generar uno temporal
-    const idFinal = tmdb_id || nombre.toLowerCase().replace(/[^a-z0-9]/g, '_');
     
     // Obtener lista de capítulos
     console.log('📚 Obteniendo lista de capítulos...');
@@ -568,34 +559,32 @@ app.post('/api/scrape', async (req, res) => {
       await new Promise(r => setTimeout(r, 500));
     }
     
-    // Preparar datos
+    // Preparar datos (usando el TMDB ID manual)
     const data = {
       novela: nombre,
       url: url,
-      tmdb_id: tmdb_id,
-      id: idFinal,
+      tmdb_id: tmdbIdFinal,
+      id: tmdbIdFinal,
       fecha_extraccion: new Date().toISOString(),
       total_capitulos: resultados.length,
       capitulos: resultados,
       poster: tmdb_poster
     };
     
-    // Guardar en GitHub (usando TMDB ID si existe, si no el generado)
-    const fileName = `${idFinal}_capitulos.json`;
+    // Guardar en GitHub (usando TMDB ID como nombre de archivo)
+    const fileName = `${tmdbIdFinal}_capitulos.json`;
     await guardarEnGitHub(fileName, data);
     
-    // Guardar en Firebase (usando TMDB ID o el generado)
-    await guardarEnFirebase(idFinal, data);
+    // Guardar en Firebase (usando TMDB ID como clave)
+    await guardarEnFirebase(tmdbIdFinal.toString(), data);
     
     console.log(`✅ Scraping completado: ${resultados.length} capítulos guardados`);
-    console.log(`🆔 ID usado: ${idFinal}${tmdb_id ? ' (TMDB)' : ' (generado)'}`);
+    console.log(`🆔 TMDB ID usado: ${tmdbIdFinal}`);
     
     res.json({ 
       success: true, 
       message: 'Scraping completado y guardado en GitHub + Firebase',
-      tmdb_id: tmdb_id,
-      id: idFinal,
-      poster: tmdb_poster
+      tmdb_id: tmdbIdFinal
     });
     
   } catch (error) {
@@ -603,7 +592,6 @@ app.post('/api/scrape', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 
 // Ruta principal
