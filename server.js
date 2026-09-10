@@ -11,22 +11,36 @@ const TMDB_API_KEY = '55c0bb848e296dd8d81046079236067d';
 const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
 
-
 // ============================================
-// CONFIGURACIÓN FIREBASE
+// CONFIGURACIÓN FIREBASE (CON MANEJO DE ERRORES)
 // ============================================
-const admin = require('firebase-admin');
+let admin = null;
+let db = null;
+let firebaseInicializado = false;
 
-// Inicializar Firebase con credenciales
-// Opción 1: Usar variables de entorno (RECOMENDADO)
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://peliculasspay-default-rtdb.firebaseio.com/'
-});
-
-const db = admin.database();
+try {
+  admin = require('firebase-admin');
+  
+  if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
+    throw new Error('FIREBASE_SERVICE_ACCOUNT no está configurada');
+  }
+  
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://peliculasspay-default-rtdb.firebaseio.com/'
+  });
+  
+  db = admin.database();
+  firebaseInicializado = true;
+  console.log('✅ Firebase inicializado correctamente');
+  
+} catch (error) {
+  console.warn('⚠️ Firebase no disponible:', error.message);
+  console.warn('⚠️ El servidor funcionará SOLO con GitHub');
+  firebaseInicializado = false;
+}
 
 // ============================================
 // FUNCIONES PARA FIREBASE
