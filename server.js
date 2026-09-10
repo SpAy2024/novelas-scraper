@@ -12,27 +12,36 @@ const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
 
 // ============================================
-// CONFIGURACIÓN FIREBASE (CON MANEJO DE ERRORES)
+// CONFIGURACIÓN FIREBASE (CORREGIDA)
 // ============================================
 let admin = null;
 let db = null;
 let firebaseInicializado = false;
 
 try {
-  admin = require('firebase-admin');
+  // ✅ IMPORTACIÓN CORRECTA para firebase-admin v13+
+  const { initializeApp, cert, getApps } = require('firebase-admin/app');
+  const { getDatabase } = require('firebase-admin/database');
+  
+  console.log('✅ firebase-admin cargado correctamente');
   
   if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT no está configurada');
   }
   
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  console.log('✅ JSON parseado correctamente');
+  console.log('📋 project_id:', serviceAccount.project_id);
   
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://peliculasspay-default-rtdb.firebaseio.com/'
-  });
+  // Inicializar solo si no está inicializado
+  if (getApps().length === 0) {
+    initializeApp({
+      credential: cert(serviceAccount),
+      databaseURL: 'https://peliculasspay-default-rtdb.firebaseio.com/'
+    });
+  }
   
-  db = admin.database();
+  db = getDatabase();
   firebaseInicializado = true;
   console.log('✅ Firebase inicializado correctamente');
   
@@ -41,13 +50,15 @@ try {
   console.warn('⚠️ El servidor funcionará SOLO con GitHub');
   firebaseInicializado = false;
 }
-
 // ============================================
 // FUNCIONES PARA FIREBASE
 // ============================================
-
 // Guardar en Firebase usando tmdb_id como clave
 async function guardarEnFirebase(tmdbId, data) {
+  if (!firebaseInicializado) {
+    console.log('⚠️ Firebase no disponible, saltando guardado');
+    return false;
+  }
   try {
     const ref = db.ref(`novelas/${tmdbId}`);
     await ref.set(data);
@@ -61,6 +72,7 @@ async function guardarEnFirebase(tmdbId, data) {
 
 // Leer de Firebase
 async function leerDeFirebase(tmdbId) {
+  if (!firebaseInicializado) return null;
   try {
     const ref = db.ref(`novelas/${tmdbId}`);
     const snapshot = await ref.once('value');
@@ -73,6 +85,7 @@ async function leerDeFirebase(tmdbId) {
 
 // Obtener todas las novelas de Firebase
 async function listarNovelasFirebase() {
+  if (!firebaseInicializado) return [];
   try {
     const ref = db.ref('novelas');
     const snapshot = await ref.once('value');
