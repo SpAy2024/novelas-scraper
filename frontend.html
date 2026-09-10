@@ -798,24 +798,27 @@
                 <div id="resultados-container"></div>
 
                 <div id="scraping-panel" style="display: none;">
-                    <div class="section-title" style="margin-top: 24px;">
-                        <i class="fas fa-download"></i>
-                        <span id="scraping-titulo"></span>
-                    </div>
-                    <div class="url-input-group">
-                        <input type="text" id="scraping-url" readonly style="background:#2a2a2a; color:#999;">
-                        <input type="number" id="limite-caps" placeholder="Límite (opcional)" style="max-width: 120px;">
-                        <button class="btn btn-primary" id="btn-iniciar-scraping">
-                            <i class="fas fa-play"></i> Iniciar Scraping
-                        </button>
-                    </div>
-                    <div id="scraping-progress" class="progress-container">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
-                        </div>
-                        <div class="progress-text" id="progress-message"></div>
-                    </div>
-                </div>
+    <div class="section-title" style="margin-top: 24px;">
+        <i class="fas fa-download"></i>
+        <span id="scraping-titulo"></span>
+    </div>
+    <div class="url-input-group">
+        <input type="text" id="scraping-url" readonly style="background:#2a2a2a; color:#999;">
+        <input type="number" id="limite-caps" placeholder="Límite (opcional)" style="max-width: 120px;">
+    </div>
+    <div class="url-input-group" style="margin-top: 8px;">
+        <input type="text" id="tmdb-id-input" placeholder="TMDB ID (ej: 12345)" style="max-width: 200px;" required>
+        <button class="btn btn-primary" id="btn-iniciar-scraping">
+            <i class="fas fa-play"></i> Iniciar Scraping
+        </button>
+    </div>
+    <div id="scraping-progress" class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-message"></div>
+    </div>
+</div>
             </div>
         </div>
     </div>
@@ -1145,73 +1148,88 @@
     }
 
     function seleccionarNovela(url, titulo) {
-        document.getElementById('scraping-panel').style.display = 'block';
-        document.getElementById('scraping-titulo').innerHTML = `📥 ${escapeHtml(titulo)}`;
-        document.getElementById('scraping-url').value = url;
-        document.getElementById('scraping-progress').style.display = 'none';
-        document.getElementById('scraping-panel').scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById('scraping-panel').style.display = 'block';
+    document.getElementById('scraping-titulo').innerHTML = `📥 ${escapeHtml(titulo)}`;
+    document.getElementById('scraping-url').value = url;
+    document.getElementById('scraping-progress').style.display = 'none';
+    document.getElementById('tmdb-id-input').value = '';
+    document.getElementById('tmdb-id-input').focus();
+    document.getElementById('scraping-panel').scrollIntoView({ behavior: 'smooth' });
+}
 
-    async function iniciarScraping() {
-        const url = document.getElementById('scraping-url').value;
-        const titulo = document.getElementById('scraping-titulo').innerHTML.replace('📥 ', '');
-        const limite = document.getElementById('limite-caps').value;
-        
-        if (!url) {
-            alert('Selecciona una novela primero');
-            return;
-        }
-        
-        const progressDiv = document.getElementById('scraping-progress');
-        const progressFill = document.getElementById('progress-fill');
-        const progressMsg = document.getElementById('progress-message');
-        
-        progressDiv.style.display = 'block';
-        progressFill.style.width = '0%';
-        progressMsg.innerHTML = 'Iniciando scraping...';
-        
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress = Math.min(progress + 10, 90);
-            progressFill.style.width = `${progress}%`;
-            if (progress < 30) progressMsg.innerHTML = 'Obteniendo lista de capítulos...';
-            else if (progress < 60) progressMsg.innerHTML = 'Procesando capítulos...';
-            else progressMsg.innerHTML = 'Guardando información...';
-        }, 500);
-        
-        try {
-            const response = await fetch('/api/scrape', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url, nombre: titulo, limite: limite || null })
-            });
-            
-            const result = await response.json();
-            clearInterval(interval);
-            
-            if (result.success) {
-                progressFill.style.width = '100%';
-                progressMsg.innerHTML = '✅ ¡Scraping completado!';
-                setTimeout(() => {
-                    progressDiv.style.display = 'none';
-                    alert(`¡${titulo} fue agregada correctamente!`);
-                    document.getElementById('scraping-panel').style.display = 'none';
-                    document.getElementById('resultados-container').innerHTML = '';
-                    document.getElementById('search-titulo').value = '';
-                    document.getElementById('url-directa').value = '';
-                    document.querySelector('.tab-btn[data-tab="biblioteca"]').click();
-                    cargarBiblioteca();
-                }, 1500);
-            } else {
-                throw new Error(result.error || 'Error desconocido');
-            }
-        } catch (error) {
-            clearInterval(interval);
-            progressDiv.style.display = 'none';
-            alert('Error en el scraping: ' + error.message);
-        }
+   async function iniciarScraping() {
+    const url = document.getElementById('scraping-url').value;
+    const titulo = document.getElementById('scraping-titulo').innerHTML.replace('📥 ', '');
+    const limite = document.getElementById('limite-caps').value;
+    const tmdb_id = document.getElementById('tmdb-id-input').value.trim();
+    
+    if (!url) {
+        alert('Selecciona una novela primero');
+        return;
     }
-
+    
+    if (!tmdb_id) {
+        alert('⚠️ Debes ingresar el TMDB ID manualmente.\n\nPuedes encontrarlo en la URL de TMDB:\nhttps://www.themoviedb.org/tv/12345-nombre');
+        document.getElementById('tmdb-id-input').focus();
+        return;
+    }
+    
+    const progressDiv = document.getElementById('scraping-progress');
+    const progressFill = document.getElementById('progress-fill');
+    const progressMsg = document.getElementById('progress-message');
+    
+    progressDiv.style.display = 'block';
+    progressFill.style.width = '0%';
+    progressMsg.innerHTML = 'Iniciando scraping...';
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress = Math.min(progress + 10, 90);
+        progressFill.style.width = `${progress}%`;
+        if (progress < 30) progressMsg.innerHTML = 'Obteniendo lista de capítulos...';
+        else if (progress < 60) progressMsg.innerHTML = 'Procesando capítulos...';
+        else progressMsg.innerHTML = 'Guardando información...';
+    }, 500);
+    
+    try {
+        const response = await fetch('/api/scrape', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                url, 
+                nombre: titulo, 
+                limite: limite || null,
+                tmdb_id: tmdb_id
+            })
+        });
+        
+        const result = await response.json();
+        clearInterval(interval);
+        
+        if (result.success) {
+            progressFill.style.width = '100%';
+            progressMsg.innerHTML = `✅ ¡Scraping completado! (TMDB ID: ${result.tmdb_id})`;
+            setTimeout(() => {
+                progressDiv.style.display = 'none';
+                alert(`¡${titulo} fue agregada correctamente!`);
+                document.getElementById('scraping-panel').style.display = 'none';
+                document.getElementById('resultados-container').innerHTML = '';
+                document.getElementById('search-titulo').value = '';
+                document.getElementById('url-directa').value = '';
+                document.getElementById('tmdb-id-input').value = '';
+                document.querySelector('.tab-btn[data-tab="biblioteca"]').click();
+                cargarBiblioteca();
+            }, 1500);
+        } else {
+            throw new Error(result.error || 'Error desconocido');
+        }
+    } catch (error) {
+        clearInterval(interval);
+        progressDiv.style.display = 'none';
+        alert('Error en el scraping: ' + error.message);
+    }
+}
+///////////////////////////////////////
     function cerrarModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
         if (modalId === 'modal-video') {
