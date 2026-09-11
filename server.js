@@ -242,7 +242,190 @@ app.post('/api/tmdb/posters', async (req, res) => {
     res.json(results);
 });
 
+// ============================================
+// ENDPOINTS DE ADMINISTRACIÓN MANUAL
+// ============================================
 
+// Crear/actualizar novela manualmente
+app.post('/api/admin/novela', async (req, res) => {
+  const { tmdb_id, nombre, poster, url } = req.body;
+  
+  if (!tmdb_id || !nombre) {
+    return res.status(400).json({ error: 'Se requiere tmdb_id y nombre' });
+  }
+  
+  try {
+    let datos = await leerDeFirebase(tmdb_id.toString()) || {
+      novela: nombre,
+      tmdb_id: parseInt(tmdb_id),
+      poster: poster || null,
+      url: url || null,
+      temporadas: {},
+      fecha_creacion: new Date().toISOString()
+    };
+    
+    // Actualizar datos
+    datos.novela = nombre;
+    if (poster) datos.poster = poster;
+    if (url) datos.url = url;
+    datos.fecha_actualizacion = new Date().toISOString();
+    
+    // Guardar en GitHub y Firebase
+    await guardarEnGitHub(`${tmdb_id}_capitulos.json`, datos);
+    await guardarEnFirebase(tmdb_id.toString(), datos);
+    
+    res.json({ success: true, message: 'Novela guardada', data: datos });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Agregar/editar capítulo manualmente
+app.post('/api/admin/capitulo', async (req, res) => {
+  const { tmdb_id, temporada, numero, titulo, url, servidores } = req.body;
+  
+  if (!tmdb_id || !temporada || !numero) {
+    return res.status(400).json({ error: 'Se requiere tmdb_id, temporada y número' });
+  }
+  
+  try {
+    const datos = await leerDeFirebase(tmdb_id.toString());
+    
+    if (!datos) {
+      return res.status(404).json({ error: 'Novela no encontrada' });
+    }
+    
+    if (!datos.temporadas) datos.temporadas = {};
+    if (!datos.temporadas[temporada]) {
+      datos.temporadas[temporada] = {
+        titulo: `Temporada ${temporada}`,
+        fecha_extraccion: new Date().toISOString(),
+        total_capitulos: 0,
+        capitulos: []
+      };
+    }
+    
+    const temp = datos.temporadas[temporada];
+    const capIndex = temp.capitulos.findIndex(c => c.numero === parseInt(numero));
+    
+    const nuevoCap = {
+      numero: parseInt(numero),
+      titulo: titulo || `Capítulo ${numero}`,
+      url: url || '',
+      servidores: servidores || []
+    };
+    
+    if (capIndex >= 0) {
+      // Editar existente
+      temp.capitulos[capIndex] = { ...temp.capitulos[capIndex], ...nuevoCap };
+    } else {
+      // Agregar nuevo
+      temp.capitulos.push(nuevoCap);
+      temp.capitulos.sort((a, b) => a.numero - b.numero);
+    }
+    
+    temp.total_capitulos = temp.capitulos.length;
+    
+    // Recalcular totales
+    datos.total_temporadas = Object.keys(datos.temporadas).length;
+    datos.total_capitulos = Object.values(datos.temporadas)
+      .reduce((sum, t) => sum + t.capitulos.length, 0);
+    datos.fecha_actualizacion = new Date().toISOString();
+    
+    await guardarEnGitHub(`${tmdb_id}_capitulos.json`, datos);
+    await guardarEnFirebase(tmdb_id.toString(), datos);
+    
+    res.json({ success: true, message: 'Capítulo guardado', data: datos });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Eliminar capítulo
+app.delete('/api/admin/capitulo', async (req, res) => {
+  const { tmdb_id, temporada, numero } = req.body;
+  
+  try {
+    const datos = await leerDeFirebase(tmdb_id.toString());
+    
+    if (!datos || !datos.temporadas || !datos.temporadas[temporada]) {
+      return res.status(404).json({ error: 'No encontrado' });
+    }
+    
+    const temp = datos.temporadas[temporada];
+    temp.capitulos = temp.capitulos.filter(c => c.numero !== parseInt(numero));
+    temp.total_capitulos = temp.capitulos.length;
+    
+    // Recalcular totales
+    datos.total_temporadas = Object.keys(datos.temporadas).length;
+    datos.total_capitulos = Object.values(datos.temporadas)
+      .reduce((sum, t) => sum + t.capitulos.length, 0);
+    
+    await guardarEnGitHub(`${tmdb_id}_capitulos.json`, datos);
+    await guardarEnFirebase(tmdb_id.toString(), datos);
+    
+    res.json({ success: true, message: 'Capítulo eliminado' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Eliminar novela completa
+app.delete('/api/admin/novela/:tmdbId', async (req, res) => {
+  try {
+    const { tmdbId } = req.params;
+    
+    // Eliminar de Firebase
+    if (firebaseInicializado) {
+      await db.ref(`novelas/${tmdbId}`).remove();
+    }
+    
+    // Eliminar de GitHub
+    try {
+      const { data: file } = await octokit.repos.getContent({
+        owner: GITHUB_OWNER,
+        repo: GITHUB_REPO,
+        path: `${tmdbId}_capitulos.json`,
+        branch: GITHUB_BRANCH
+      });
+      
+      await octokit.repos.deleteFile({
+        owner: GITHUB_OWNER,
+        repo: GITHUB_REPO,
+        path: `${tmdbId}_capitulos.json`,
+        message: `Eliminar ${tmdbId}`,
+        sha: file.sha,
+        branch: GITHUB_BRANCH
+      });
+    } catch (e) {
+      console.log('Archivo no existe en GitHub');
+    }
+    
+    res.json({ success: true, message: 'Novela eliminada' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Obtener novela completa para edición
+app.get('/api/admin/novela/:tmdbId', async (req, res) => {
+  try {
+    const datos = await leerDeFirebase(req.params.tmdbId);
+    
+    if (!datos) {
+      // Intentar en GitHub
+      const datosGitHub = await leerDeGitHub(`${req.params.tmdbId}_capitulos.json`);
+      if (datosGitHub) {
+        return res.json(datosGitHub);
+      }
+      return res.status(404).json({ error: 'No encontrada' });
+    }
+    
+    res.json(datos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 

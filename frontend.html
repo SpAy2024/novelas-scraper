@@ -798,6 +798,80 @@
                 <div id="resultados-container"></div>
 
                 <div id="scraping-panel" style="display: none;">
+
+
+<!-- En la navbar -->
+<a class="nav-link" data-tab="admin">⚙️ Admin</a>
+
+<!-- Panel de admin (agregar después de panel-scraping) -->
+<div id="panel-admin" style="display: none;">
+    <div class="scraping-section">
+        <div class="section-title">
+            <i class="fas fa-cog"></i>
+            <span>Administración Manual</span>
+        </div>
+        
+        <!-- Crear/Editar Novela -->
+        <div style="background: #2a2a2a; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px; color: #e50914;">📺 Crear/Editar Novela</h3>
+            <div class="url-input-group">
+                <input type="text" id="admin-tmdb-id" placeholder="TMDB ID (ej: 44953)">
+                <input type="text" id="admin-nombre" placeholder="Nombre de la novela">
+            </div>
+            <div class="url-input-group" style="margin-top: 8px;">
+                <input type="text" id="admin-poster" placeholder="URL del poster (opcional)">
+                <input type="text" id="admin-url" placeholder="URL de la novela (opcional)">
+            </div>
+            <button class="btn btn-primary" id="btn-admin-guardar-novela" style="margin-top: 10px;">
+                <i class="fas fa-save"></i> Guardar Novela
+            </button>
+
+          <button class="btn btn-outline" id="btn-admin-eliminar-novela" onclick="adminEliminarNovela()" style="margin-top: 10px; border-color: #e50914; color: #e50914;">
+    <i class="fas fa-trash"></i> Eliminar Novela
+</button>
+
+        </div>
+        
+        <!-- Cargar novela para editar -->
+        <div style="background: #2a2a2a; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px; color: #e50914;">🔍 Cargar Novela para Editar</h3>
+            <div class="url-input-group">
+                <input type="text" id="admin-buscar-tmdb" placeholder="TMDB ID a editar">
+                <button class="btn btn-outline" id="btn-admin-cargar">
+                    <i class="fas fa-search"></i> Cargar
+                </button>
+            </div>
+        </div>
+        
+        <!-- Lista de capítulos para editar -->
+        <div id="admin-capitulos-panel" style="display: none;">
+            <div style="background: #2a2a2a; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; color: #e50914;">🎬 Agregar/Editar Capítulo</h3>
+                <div class="url-input-group">
+                    <input type="number" id="admin-temporada" placeholder="Temporada" style="max-width: 100px;">
+                    <input type="number" id="admin-cap-numero" placeholder="Número cap." style="max-width: 100px;">
+                    <input type="text" id="admin-cap-titulo" placeholder="Título del capítulo">
+                </div>
+                <div class="url-input-group" style="margin-top: 8px;">
+                    <input type="text" id="admin-cap-url" placeholder="URL del capítulo">
+                </div>
+                <div class="url-input-group" style="margin-top: 8px;">
+                    <input type="text" id="admin-cap-servidores" placeholder="Servidores (separados por coma)">
+                </div>
+                <button class="btn btn-primary" id="btn-admin-guardar-cap" style="margin-top: 10px;">
+                    <i class="fas fa-save"></i> Guardar Capítulo
+                </button>
+            </div>
+            
+            <div id="admin-lista-capitulos"></div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
     <div class="section-title" style="margin-top: 24px;">
         <i class="fas fa-download"></i>
         <span id="scraping-titulo"></span>
@@ -1229,6 +1303,227 @@
         alert('Error en el scraping: ' + error.message);
     }
 }
+/////////////////////////////////
+
+// ========== ADMIN: GUARDAR NOVELA ==========
+async function adminGuardarNovela() {
+    const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
+    const nombre = document.getElementById('admin-nombre').value.trim();
+    const poster = document.getElementById('admin-poster').value.trim();
+    const url = document.getElementById('admin-url').value.trim();
+    
+    if (!tmdb_id || !nombre) {
+        alert('Se requiere TMDB ID y nombre');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/admin/novela', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tmdb_id, nombre, poster, url })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert('✅ Novela guardada correctamente');
+            cargarBiblioteca();
+        } else {
+            alert('❌ Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+// ========== ADMIN: CARGAR NOVELA ==========
+async function adminCargarNovela() {
+    const tmdb_id = document.getElementById('admin-buscar-tmdb').value.trim();
+    
+    if (!tmdb_id) {
+        alert('Ingresa un TMDB ID');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/admin/novela/${tmdb_id}`);
+        const data = await response.json();
+        
+        if (data.error) {
+            alert('No encontrada: ' + data.error);
+            return;
+        }
+        
+        // Llenar formularios
+        document.getElementById('admin-tmdb-id').value = data.tmdb_id || tmdb_id;
+        document.getElementById('admin-nombre').value = data.novela || '';
+        document.getElementById('admin-poster').value = data.poster || '';
+        document.getElementById('admin-url').value = data.url || '';
+        
+        // Mostrar capítulos
+        document.getElementById('admin-capitulos-panel').style.display = 'block';
+        adminMostrarCapitulos(data, tmdb_id);
+        
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+// ========== ADMIN: MOSTRAR CAPÍTULOS ==========
+function adminMostrarCapitulos(data, tmdbId) {
+    const container = document.getElementById('admin-lista-capitulos');
+    
+    if (!data.temporadas || Object.keys(data.temporadas).length === 0) {
+        container.innerHTML = '<p style="color: #808080;">No hay capítulos aún</p>';
+        return;
+    }
+    
+    let html = '';
+    for (const [numTemp, temp] of Object.entries(data.temporadas)) {
+        html += `
+            <div style="background: #2a2a2a; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+                <h3 style="color: #e50914; margin-bottom: 12px;">
+                    Temporada ${numTemp} (${temp.capitulos?.length || 0} caps)
+                </h3>
+                <div style="display: grid; gap: 8px;">
+                    ${(temp.capitulos || []).map(cap => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 10px; border-radius: 8px;">
+                            <div style="flex: 1;">
+                                <strong>Cap. ${cap.numero}</strong> - ${escapeHtml(cap.titulo || '')}
+                                <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                                    ${cap.servidores?.length || 0} servidores
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="adminEditarCapitulo('${tmdbId}', '${numTemp}', ${cap.numero})" style="padding: 6px 12px; font-size: 12px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline" onclick="adminEliminarCapitulo('${tmdbId}', '${numTemp}', ${cap.numero})" style="padding: 6px 12px; font-size: 12px; margin-left: 8px; border-color: #e50914;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+// ========== ADMIN: EDITAR CAPÍTULO ==========
+async function adminEditarCapitulo(tmdbId, temporada, numero) {
+    try {
+        const response = await fetch(`/api/admin/novela/${tmdbId}`);
+        const data = await response.json();
+        
+        const temp = data.temporadas[temporada];
+        const cap = temp.capitulos.find(c => c.numero === numero);
+        
+        if (!cap) return;
+        
+        document.getElementById('admin-temporada').value = temporada;
+        document.getElementById('admin-cap-numero').value = cap.numero;
+        document.getElementById('admin-cap-titulo').value = cap.titulo || '';
+        document.getElementById('admin-cap-url').value = cap.url || '';
+        document.getElementById('admin-cap-servidores').value = (cap.servidores || []).join(', ');
+        
+        document.getElementById('admin-cap-numero').focus();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+// ========== ADMIN: GUARDAR CAPÍTULO ==========
+async function adminGuardarCapitulo() {
+    const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
+    const temporada = document.getElementById('admin-temporada').value.trim();
+    const numero = document.getElementById('admin-cap-numero').value.trim();
+    const titulo = document.getElementById('admin-cap-titulo').value.trim();
+    const url = document.getElementById('admin-cap-url').value.trim();
+    const servidoresStr = document.getElementById('admin-cap-servidores').value.trim();
+    
+    if (!tmdb_id || !temporada || !numero) {
+        alert('Se requiere TMDB ID, temporada y número');
+        return;
+    }
+    
+    const servidores = servidoresStr 
+        ? servidoresStr.split(',').map(s => s.trim()).filter(s => s)
+        : [];
+    
+    try {
+        const response = await fetch('/api/admin/capitulo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tmdb_id, temporada, numero, titulo, url, servidores })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert('✅ Capítulo guardado');
+            adminCargarNovela();
+        } else {
+            alert('❌ Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+// ========== ADMIN: ELIMINAR CAPÍTULO ==========
+async function adminEliminarCapitulo(tmdbId, temporada, numero) {
+    if (!confirm(`¿Eliminar capítulo ${numero} de temporada ${temporada}?`)) return;
+    
+    try {
+        const response = await fetch('/api/admin/capitulo', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tmdb_id: tmdbId, temporada, numero })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert('✅ Capítulo eliminado');
+            adminCargarNovela();
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+// ========== ADMIN: ELIMINAR NOVELA ==========
+async function adminEliminarNovela() {
+    const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
+    
+    if (!tmdb_id) {
+        alert('Ingresa un TMDB ID');
+        return;
+    }
+    
+    if (!confirm(`⚠️ ¿Eliminar COMPLETAMENTE la novela ${tmdb_id}?\n\nEsta acción no se puede deshacer.`)) return;
+    
+    try {
+        const response = await fetch(`/api/admin/novela/${tmdb_id}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert('✅ Novela eliminada');
+            document.getElementById('admin-capitulos-panel').style.display = 'none';
+            cargarBiblioteca();
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+
+// ========== EVENT LISTENERS ADMIN ==========
+document.getElementById('btn-admin-guardar-novela')?.addEventListener('click', adminGuardarNovela);
+document.getElementById('btn-admin-cargar')?.addEventListener('click', adminCargarNovela);
+document.getElementById('btn-admin-guardar-cap')?.addEventListener('click', adminGuardarCapitulo);
+
+
 ///////////////////////////////////////
     function cerrarModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
