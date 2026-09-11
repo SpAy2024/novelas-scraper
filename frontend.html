@@ -9,11 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -22,701 +18,309 @@
             overflow-x: hidden;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #2a2a2a;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #e50914;
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #f6121d;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #2a2a2a; }
+        ::-webkit-scrollbar-thumb { background: #e50914; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f6121d; }
 
         .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
             background: linear-gradient(180deg, #141414 0%, rgba(20,20,20,0.95) 100%);
             backdrop-filter: blur(10px);
-            padding: 0 4%;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 0 4%; height: 70px;
+            display: flex; align-items: center; justify-content: space-between;
             transition: all 0.3s ease;
         }
 
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-brand i {
-            font-size: 28px;
-            color: #e50914;
-        }
-
+        .nav-brand { display: flex; align-items: center; gap: 8px; }
+        .nav-brand i { font-size: 28px; color: #e50914; }
         .nav-brand span {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            font-size: 20px; font-weight: 700; letter-spacing: -0.5px;
             background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 28px;
-        }
-
+        .nav-links { display: flex; gap: 28px; }
         .nav-link {
-            color: #e5e5e5;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.2s;
-            cursor: pointer;
-            padding: 4px 0;
-            position: relative;
+            color: #e5e5e5; text-decoration: none; font-size: 14px; font-weight: 500;
+            transition: color 0.2s; cursor: pointer; padding: 4px 0; position: relative;
         }
-
-        .nav-link:hover {
-            color: #ffffff;
-        }
-
-        .nav-link.active {
-            color: #ffffff;
-            font-weight: 600;
-        }
-
+        .nav-link:hover { color: #ffffff; }
+        .nav-link.active { color: #ffffff; font-weight: 600; }
         .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #e50914;
-            border-radius: 2px;
+            content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+            height: 2px; background: #e50914; border-radius: 2px;
         }
 
         .main-container {
-            margin-top: 70px;
-            min-height: calc(100vh - 70px);
+            margin-top: 70px; min-height: calc(100vh - 70px);
             padding: 30px 4% 60px;
         }
 
         .hero {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-radius: 24px;
-            padding: 48px 40px;
-            margin-bottom: 40px;
-            position: relative;
-            overflow: hidden;
+            border-radius: 24px; padding: 48px 40px; margin-bottom: 40px;
+            position: relative; overflow: hidden;
         }
-
         .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05"><path fill="none" d="M20,50 L80,50 M50,20 L50,80" stroke="white" stroke-width="1"/><circle cx="50" cy="50" r="30" stroke="white" stroke-width="1" fill="none"/></svg>') repeat;
             pointer-events: none;
         }
-
-        .hero h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            letter-spacing: -1px;
-        }
-
-        .hero p {
-            font-size: 1rem;
-            color: #b3b3b3;
-            max-width: 600px;
-            line-height: 1.5;
-        }
+        .hero h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -1px; }
+        .hero p { font-size: 1rem; color: #b3b3b3; max-width: 600px; line-height: 1.5; }
 
         .tabs {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
+            display: flex; gap: 12px; margin-bottom: 32px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 12px;
         }
-
         .tab-btn {
-            background: none;
-            border: none;
-            color: #808080;
-            font-size: 16px;
-            font-weight: 600;
-            padding: 8px 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 8px;
+            background: none; border: none; color: #808080; font-size: 16px;
+            font-weight: 600; padding: 8px 20px; cursor: pointer;
+            transition: all 0.2s; border-radius: 8px;
             font-family: 'Inter', sans-serif;
         }
-
-        .tab-btn:hover {
-            color: #e5e5e5;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .tab-btn.active {
-            color: #e50914;
-            background: rgba(229,9,20,0.1);
-        }
+        .tab-btn:hover { color: #e5e5e5; background: rgba(255,255,255,0.05); }
+        .tab-btn.active { color: #e50914; background: rgba(229,9,20,0.1); }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-bottom: 40px;
         }
-
         .stat-card {
             background: linear-gradient(135deg, #1f1f2a 0%, #1a1a24 100%);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.2s;
+            border-radius: 16px; padding: 24px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s;
         }
+        .stat-card:hover { transform: translateY(-2px); border-color: rgba(229,9,20,0.3); }
+        .stat-icon { font-size: 32px; color: #e50914; margin-bottom: 12px; }
+        .stat-number { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+        .stat-label { font-size: 13px; color: #808080; text-transform: uppercase; letter-spacing: 1px; }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            border-color: rgba(229,9,20,0.3);
-        }
-
-        .stat-icon {
-            font-size: 32px;
-            color: #e50914;
-            margin-bottom: 12px;
-        }
-
-        .stat-number {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            font-size: 13px;
-            color: #808080;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .search-bar {
-            margin-bottom: 32px;
-            position: relative;
-        }
-
+        .search-bar { margin-bottom: 32px; position: relative; }
         .search-bar i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #808080;
-            font-size: 16px;
+            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+            color: #808080; font-size: 16px;
         }
-
         .search-bar input {
-            width: 100%;
-            max-width: 400px;
-            padding: 12px 16px 12px 44px;
-            background: #2a2a2a;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 40px;
-            color: #fff;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
+            width: 100%; max-width: 400px; padding: 12px 16px 12px 44px;
+            background: #2a2a2a; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 40px; color: #fff; font-size: 14px;
+            font-family: 'Inter', sans-serif; transition: all 0.2s;
         }
-
-        .search-bar input:focus {
-            outline: none;
-            border-color: #e50914;
-            background: #333;
-        }
-
-        .search-bar input::placeholder {
-            color: #666;
-        }
+        .search-bar input:focus { outline: none; border-color: #e50914; background: #333; }
+        .search-bar input::placeholder { color: #666; }
 
         .novelas-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 24px;
         }
-
         .novela-card {
-            background: #1a1a1a;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: #1a1a1a; border-radius: 12px; overflow: hidden;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+            position: relative; border: 1px solid rgba(255,255,255,0.05);
         }
-
         .novela-card:hover {
-            transform: scale(1.02);
-            border-color: rgba(229,9,20,0.3);
+            transform: scale(1.02); border-color: rgba(229,9,20,0.3);
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
         }
-
         .novela-poster {
-            aspect-ratio: 2/3;
-            background: linear-gradient(135deg, #1a1a2e 0%, #2a2a3e 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
+            aspect-ratio: 2/3; background: linear-gradient(135deg, #1a1a2e 0%, #2a2a3e 100%);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
         }
-
         .novela-poster img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;
         }
+        .novela-card:hover .novela-poster img { transform: scale(1.05); }
+        .novela-poster i { font-size: 48px; color: rgba(229,9,20,0.3); }
 
-        .novela-card:hover .novela-poster img {
-            transform: scale(1.05);
-        }
-
-        .novela-poster i {
-            font-size: 48px;
-            color: rgba(229,9,20,0.3);
-        }
-
-        .novela-info {
-            padding: 16px;
-        }
-
+        .novela-info { padding: 16px; }
         .novela-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-weight: 600; font-size: 15px; margin-bottom: 8px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-
-        .novela-meta {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 12px;
-            color: #808080;
-        }
-
-        .novela-meta i {
-            font-size: 12px;
-            margin-right: 4px;
-        }
-
+        .novela-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #808080; }
+        .novela-meta i { font-size: 12px; margin-right: 4px; }
         .badge-caps {
-            background: rgba(229,9,20,0.2);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            color: #e50914;
+            background: rgba(229,9,20,0.2); padding: 2px 8px;
+            border-radius: 12px; font-size: 11px; color: #e50914;
         }
 
         .scraping-section {
-            background: #1a1a1a;
-            border-radius: 20px;
-            padding: 32px;
+            background: #1a1a1a; border-radius: 20px; padding: 32px;
             border: 1px solid rgba(255,255,255,0.05);
         }
-
         .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 20px; font-weight: 600; margin-bottom: 24px;
+            display: flex; align-items: center; gap: 10px;
         }
-
-        .section-title i {
-            color: #e50914;
-            font-size: 22px;
-        }
+        .section-title i { color: #e50914; font-size: 22px; }
 
         .url-input-group {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
+            display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
         }
-
         .url-input-group input {
-            flex: 1;
-            padding: 14px 18px;
-            background: #2a2a2a;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
+            flex: 1; padding: 14px 18px; background: #2a2a2a;
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+            color: #fff; font-size: 14px;
+            font-family: 'Inter', sans-serif; transition: all 0.2s;
         }
-
-        .url-input-group input:focus {
-            outline: none;
-            border-color: #e50914;
-        }
+        .url-input-group input:focus { outline: none; border-color: #e50914; }
 
         .btn {
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            padding: 12px 24px; border-radius: 40px; font-weight: 600;
+            font-size: 14px; font-family: 'Inter', sans-serif; cursor: pointer;
+            transition: all 0.2s; border: none;
+            display: inline-flex; align-items: center; gap: 8px;
         }
-
-        .btn-primary {
-            background: #e50914;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #f6121d;
-            transform: scale(1.02);
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.15);
-        }
-
+        .btn-primary { background: #e50914; color: white; }
+        .btn-primary:hover { background: #f6121d; transform: scale(1.02); }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
         .btn-outline {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
+            background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white;
         }
+        .btn-outline:hover { border-color: #e50914; background: rgba(229,9,20,0.1); }
 
-        .btn-outline:hover {
-            border-color: #e50914;
-            background: rgba(229,9,20,0.1);
-        }
-
-        .results-section {
-            margin-top: 32px;
-        }
-
+        .results-section { margin-top: 32px; }
         .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            margin-top: 16px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px; margin-top: 16px;
         }
-
         .result-item {
-            background: #2a2a2a;
-            border-radius: 12px;
-            padding: 16px;
-            transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: #2a2a2a; border-radius: 12px; padding: 16px;
+            transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05);
         }
-
-        .result-item:hover {
-            border-color: rgba(229,9,20,0.3);
-        }
-
-        .result-title {
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
+        .result-item:hover { border-color: rgba(229,9,20,0.3); }
+        .result-title { font-weight: 600; margin-bottom: 8px; }
         .result-url {
-            font-size: 11px;
-            color: #666;
-            word-break: break-all;
-            margin-bottom: 12px;
+            font-size: 11px; color: #666; word-break: break-all; margin-bottom: 12px;
         }
-
         .result-btn {
-            padding: 8px 16px;
-            font-size: 12px;
-            background: #e50914;
-            border: none;
-            border-radius: 20px;
-            color: white;
-            cursor: pointer;
-            transition: opacity 0.2s;
+            padding: 8px 16px; font-size: 12px; background: #e50914;
+            border: none; border-radius: 20px; color: white;
+            cursor: pointer; transition: opacity 0.2s;
         }
+        .result-btn:hover { opacity: 0.9; }
 
-        .result-btn:hover {
-            opacity: 0.9;
-        }
-
-        .progress-container {
-            margin-top: 20px;
-            display: none;
-        }
-
+        .progress-container { margin-top: 20px; display: none; }
         .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            overflow: hidden;
+            width: 100%; height: 4px; background: #333;
+            border-radius: 2px; overflow: hidden;
         }
-
         .progress-fill {
-            height: 100%;
-            background: #e50914;
-            width: 0%;
-            transition: width 0.3s;
-            border-radius: 2px;
+            height: 100%; background: #e50914; width: 0%;
+            transition: width 0.3s; border-radius: 2px;
         }
-
-        .progress-text {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #808080;
-        }
+        .progress-text { margin-top: 8px; font-size: 12px; color: #808080; }
 
         .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px;
-            gap: 16px;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; padding: 60px; gap: 16px;
         }
-
         .spinner {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             border: 3px solid rgba(229,9,20,0.2);
-            border-top-color: #e50914;
-            border-radius: 50%;
+            border-top-color: #e50914; border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: #1a1a1a;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center; padding: 60px 20px; background: #1a1a1a;
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.05);
         }
-
-        .empty-state i {
-            font-size: 48px;
-            color: #404040;
-            margin-bottom: 16px;
-        }
-
-        .empty-state h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .empty-state p {
-            color: #808080;
-            font-size: 14px;
-        }
+        .empty-state i { font-size: 48px; color: #404040; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 18px; margin-bottom: 8px; }
+        .empty-state p { color: #808080; font-size: 14px; }
 
         .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9); z-index: 2000;
+            align-items: center; justify-content: center;
             backdrop-filter: blur(8px);
         }
-
         .modal-content {
-            background: #1a1a1a;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 900px;
-            max-height: 85vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            background: #1a1a1a; border-radius: 20px; width: 90%; max-width: 900px;
+            max-height: 85vh; overflow: hidden;
+            display: flex; flex-direction: column;
             animation: modalFadeIn 0.3s ease;
         }
-
         @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
-
         .modal-header {
             padding: 20px 24px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
         }
-
-        .modal-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
+        .modal-header h2 { font-size: 18px; font-weight: 600; }
         .modal-close {
-            background: none;
-            border: none;
-            color: #808080;
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.2s;
+            background: none; border: none; color: #808080; font-size: 24px;
+            cursor: pointer; transition: color 0.2s;
         }
-
-        .modal-close:hover {
-            color: #fff;
-        }
-
-        .modal-body {
-            padding: 20px 24px;
-            overflow-y: auto;
-            flex: 1;
-        }
+        .modal-close:hover { color: #fff; }
+        .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
 
         .capitulos-grid-modal {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 12px;
         }
-
         .capitulo-item {
-            background: #2a2a2a;
-            border-radius: 10px;
-            padding: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
+            background: #2a2a2a; border-radius: 10px; padding: 14px;
+            cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
         }
-
-        .capitulo-item:hover {
-            background: #333;
-            border-color: rgba(229,9,20,0.3);
-        }
-
+        .capitulo-item:hover { background: #333; border-color: rgba(229,9,20,0.3); }
         .capitulo-numero {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 6px;
-            color: #e50914;
+            font-weight: 600; font-size: 14px; margin-bottom: 6px; color: #e50914;
         }
-
         .capitulo-titulo {
-            font-size: 12px;
-            color: #b3b3b3;
-            margin-bottom: 10px;
-            line-height: 1.4;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            font-size: 12px; color: #b3b3b3; margin-bottom: 10px; line-height: 1.4;
+            overflow: hidden; display: -webkit-box;
+            -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         }
-
         .servidor-badge {
-            display: inline-block;
-            background: rgba(229,9,20,0.15);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 10px;
-            color: #e50914;
-            margin-top: 8px;
+            display: inline-block; background: rgba(229,9,20,0.15);
+            padding: 4px 8px; border-radius: 6px; font-size: 10px;
+            color: #e50914; margin-top: 8px;
         }
 
-        iframe {
-            width: 100%;
-            height: 400px;
-            border: none;
-            border-radius: 12px;
+        iframe { width: 100%; height: 400px; border: none; border-radius: 12px; }
+
+        /* Admin styles */
+        .admin-section {
+            background: #2a2a2a; padding: 20px; border-radius: 12px; margin-bottom: 20px;
+        }
+        .admin-section h3 { margin-bottom: 15px; color: #e50914; }
+        .capitulo-admin-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 8px;
+        }
+        .capitulo-admin-item .info { flex: 1; }
+        .capitulo-admin-item .info strong { color: #e50914; }
+        .capitulo-admin-item .info .servidores-count {
+            font-size: 11px; color: #666; margin-top: 4px;
         }
 
         @media (max-width: 768px) {
-            .navbar {
-                padding: 0 16px;
-            }
-            .nav-links {
-                gap: 16px;
-            }
-            .hero {
-                padding: 32px 24px;
-            }
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            .novelas-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                gap: 16px;
-            }
-            .url-input-group {
-                flex-direction: column;
-            }
-            .btn {
-                justify-content: center;
-            }
-            .modal-content {
-                width: 95%;
-            }
-            iframe {
-                height: 250px;
-            }
+            .navbar { padding: 0 16px; }
+            .nav-links { gap: 16px; }
+            .hero { padding: 32px 24px; }
+            .hero h1 { font-size: 1.8rem; }
+            .novelas-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+            .url-input-group { flex-direction: column; }
+            .btn { justify-content: center; }
+            .modal-content { width: 95%; }
+            iframe { height: 250px; }
         }
-
         @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            .novelas-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            }
+            .stats-grid { grid-template-columns: 1fr; }
+            .novelas-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
         }
     </style>
 </head>
@@ -730,6 +334,7 @@
         <div class="nav-links">
             <a class="nav-link active" data-tab="biblioteca">📚 Biblioteca</a>
             <a class="nav-link" data-tab="scraping">🔍 Scraping</a>
+            <a class="nav-link" data-tab="admin">⚙️ Admin</a>
         </div>
     </nav>
 
@@ -742,8 +347,10 @@
         <div class="tabs">
             <button class="tab-btn active" data-tab="biblioteca">📚 Biblioteca</button>
             <button class="tab-btn" data-tab="scraping">🔍 Scraping</button>
+            <button class="tab-btn" data-tab="admin">⚙️ Admin</button>
         </div>
 
+        <!-- ========== PANEL BIBLIOTECA ========== -->
         <div id="panel-biblioteca">
             <div class="stats-grid" id="stats-container">
                 <div class="stat-card">
@@ -771,6 +378,7 @@
             <div id="biblioteca-grid" class="novelas-grid"></div>
         </div>
 
+        <!-- ========== PANEL SCRAPING ========== -->
         <div id="panel-scraping" style="display: none;">
             <div class="scraping-section">
                 <div class="section-title">
@@ -798,105 +406,97 @@
                 <div id="resultados-container"></div>
 
                 <div id="scraping-panel" style="display: none;">
-
-
-<!-- En la navbar -->
-<a class="nav-link" data-tab="admin">⚙️ Admin</a>
-
-<!-- Panel de admin (agregar después de panel-scraping) -->
-<div id="panel-admin" style="display: none;">
-    <div class="scraping-section">
-        <div class="section-title">
-            <i class="fas fa-cog"></i>
-            <span>Administración Manual</span>
-        </div>
-        
-        <!-- Crear/Editar Novela -->
-        <div style="background: #2a2a2a; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px; color: #e50914;">📺 Crear/Editar Novela</h3>
-            <div class="url-input-group">
-                <input type="text" id="admin-tmdb-id" placeholder="TMDB ID (ej: 44953)">
-                <input type="text" id="admin-nombre" placeholder="Nombre de la novela">
-            </div>
-            <div class="url-input-group" style="margin-top: 8px;">
-                <input type="text" id="admin-poster" placeholder="URL del poster (opcional)">
-                <input type="text" id="admin-url" placeholder="URL de la novela (opcional)">
-            </div>
-            <button class="btn btn-primary" id="btn-admin-guardar-novela" style="margin-top: 10px;">
-                <i class="fas fa-save"></i> Guardar Novela
-            </button>
-
-          <button class="btn btn-outline" id="btn-admin-eliminar-novela" onclick="adminEliminarNovela()" style="margin-top: 10px; border-color: #e50914; color: #e50914;">
-    <i class="fas fa-trash"></i> Eliminar Novela
-</button>
-
-        </div>
-        
-        <!-- Cargar novela para editar -->
-        <div style="background: #2a2a2a; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-            <h3 style="margin-bottom: 15px; color: #e50914;">🔍 Cargar Novela para Editar</h3>
-            <div class="url-input-group">
-                <input type="text" id="admin-buscar-tmdb" placeholder="TMDB ID a editar">
-                <button class="btn btn-outline" id="btn-admin-cargar">
-                    <i class="fas fa-search"></i> Cargar
-                </button>
-            </div>
-        </div>
-        
-        <!-- Lista de capítulos para editar -->
-        <div id="admin-capitulos-panel" style="display: none;">
-            <div style="background: #2a2a2a; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                <h3 style="margin-bottom: 15px; color: #e50914;">🎬 Agregar/Editar Capítulo</h3>
-                <div class="url-input-group">
-                    <input type="number" id="admin-temporada" placeholder="Temporada" style="max-width: 100px;">
-                    <input type="number" id="admin-cap-numero" placeholder="Número cap." style="max-width: 100px;">
-                    <input type="text" id="admin-cap-titulo" placeholder="Título del capítulo">
+                    <div class="section-title" style="margin-top: 24px;">
+                        <i class="fas fa-download"></i>
+                        <span id="scraping-titulo"></span>
+                    </div>
+                    <div class="url-input-group">
+                        <input type="text" id="scraping-url" readonly style="background:#2a2a2a; color:#999;">
+                        <input type="number" id="limite-caps" placeholder="Límite (opcional)" style="max-width: 120px;">
+                    </div>
+                    <div class="url-input-group" style="margin-top: 8px;">
+                        <input type="text" id="tmdb-id-input" placeholder="TMDB ID (ej: 12345)" style="max-width: 200px;" required>
+                        <button class="btn btn-primary" id="btn-iniciar-scraping">
+                            <i class="fas fa-play"></i> Iniciar Scraping
+                        </button>
+                    </div>
+                    <div id="scraping-progress" class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                        <div class="progress-text" id="progress-message"></div>
+                    </div>
                 </div>
-                <div class="url-input-group" style="margin-top: 8px;">
-                    <input type="text" id="admin-cap-url" placeholder="URL del capítulo">
-                </div>
-                <div class="url-input-group" style="margin-top: 8px;">
-                    <input type="text" id="admin-cap-servidores" placeholder="Servidores (separados por coma)">
-                </div>
-                <button class="btn btn-primary" id="btn-admin-guardar-cap" style="margin-top: 10px;">
-                    <i class="fas fa-save"></i> Guardar Capítulo
-                </button>
-            </div>
-            
-            <div id="admin-lista-capitulos"></div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
-    <div class="section-title" style="margin-top: 24px;">
-        <i class="fas fa-download"></i>
-        <span id="scraping-titulo"></span>
-    </div>
-    <div class="url-input-group">
-        <input type="text" id="scraping-url" readonly style="background:#2a2a2a; color:#999;">
-        <input type="number" id="limite-caps" placeholder="Límite (opcional)" style="max-width: 120px;">
-    </div>
-    <div class="url-input-group" style="margin-top: 8px;">
-        <input type="text" id="tmdb-id-input" placeholder="TMDB ID (ej: 12345)" style="max-width: 200px;" required>
-        <button class="btn btn-primary" id="btn-iniciar-scraping">
-            <i class="fas fa-play"></i> Iniciar Scraping
-        </button>
-    </div>
-    <div id="scraping-progress" class="progress-container">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill"></div>
-        </div>
-        <div class="progress-text" id="progress-message"></div>
-    </div>
-</div>
             </div>
         </div>
+
+        <!-- ========== PANEL ADMIN ========== -->
+        <div id="panel-admin" style="display: none;">
+            <div class="scraping-section">
+                <div class="section-title">
+                    <i class="fas fa-cog"></i>
+                    <span>Administración Manual</span>
+                </div>
+
+                <!-- Crear/Editar Novela -->
+                <div class="admin-section">
+                    <h3>📺 Crear/Editar Novela</h3>
+                    <div class="url-input-group">
+                        <input type="text" id="admin-tmdb-id" placeholder="TMDB ID (ej: 44953)">
+                        <input type="text" id="admin-nombre" placeholder="Nombre de la novela">
+                    </div>
+                    <div class="url-input-group" style="margin-top: 8px;">
+                        <input type="text" id="admin-poster" placeholder="URL del poster (opcional)">
+                        <input type="text" id="admin-url" placeholder="URL de la novela (opcional)">
+                    </div>
+                    <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" id="btn-admin-guardar-novela">
+                            <i class="fas fa-save"></i> Guardar Novela
+                        </button>
+                        <button class="btn btn-outline" id="btn-admin-eliminar-novela" style="border-color: #e50914; color: #e50914;">
+                            <i class="fas fa-trash"></i> Eliminar Novela
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cargar novela para editar -->
+                <div class="admin-section">
+                    <h3>🔍 Cargar Novela para Editar</h3>
+                    <div class="url-input-group">
+                        <input type="text" id="admin-buscar-tmdb" placeholder="TMDB ID a editar">
+                        <button class="btn btn-outline" id="btn-admin-cargar">
+                            <i class="fas fa-search"></i> Cargar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de capítulos para editar -->
+                <div id="admin-capitulos-panel" style="display: none;">
+                    <div class="admin-section">
+                        <h3>🎬 Agregar/Editar Capítulo</h3>
+                        <div class="url-input-group">
+                            <input type="number" id="admin-temporada" placeholder="Temporada" style="max-width: 100px;">
+                            <input type="number" id="admin-cap-numero" placeholder="Número cap." style="max-width: 100px;">
+                            <input type="text" id="admin-cap-titulo" placeholder="Título del capítulo">
+                        </div>
+                        <div class="url-input-group" style="margin-top: 8px;">
+                            <input type="text" id="admin-cap-url" placeholder="URL del capítulo">
+                        </div>
+                        <div class="url-input-group" style="margin-top: 8px;">
+                            <input type="text" id="admin-cap-servidores" placeholder="Servidores (separados por coma)">
+                        </div>
+                        <button class="btn btn-primary" id="btn-admin-guardar-cap" style="margin-top: 10px;">
+                            <i class="fas fa-save"></i> Guardar Capítulo
+                        </button>
+                    </div>
+
+                    <div id="admin-lista-capitulos"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- ========== MODALES ========== -->
     <div id="modal-capitulos" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -927,9 +527,9 @@
     </div>
 
     <script>
-       const API_URL = '';
+    const API_URL = '';
     const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
-    
+
     let novelasData = [];
     let capitulosData = [];
     let capitulosFiltrados = [];
@@ -937,23 +537,29 @@
 
     const panelBiblioteca = document.getElementById('panel-biblioteca');
     const panelScraping = document.getElementById('panel-scraping');
+    const panelAdmin = document.getElementById('panel-admin');
     const bibliotecaGrid = document.getElementById('biblioteca-grid');
     const searchInput = document.getElementById('search-novela');
 
+    // ========== TABS ==========
     document.querySelectorAll('.tab-btn, .nav-link[data-tab]').forEach(btn => {
         btn.addEventListener('click', () => {
             const tab = btn.getAttribute('data-tab');
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.nav-link[data-tab]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
+
+            panelBiblioteca.style.display = 'none';
+            panelScraping.style.display = 'none';
+            panelAdmin.style.display = 'none';
+
             if (tab === 'biblioteca') {
                 panelBiblioteca.style.display = 'block';
-                panelScraping.style.display = 'none';
                 cargarBiblioteca();
-            } else {
-                panelBiblioteca.style.display = 'none';
+            } else if (tab === 'scraping') {
                 panelScraping.style.display = 'block';
+            } else if (tab === 'admin') {
+                panelAdmin.style.display = 'block';
             }
         });
     });
@@ -964,24 +570,19 @@
     searchInput?.addEventListener('input', filtrarNovelas);
     document.getElementById('buscar-capitulo')?.addEventListener('input', filtrarCapitulos);
 
+    // ========== POSTERS ==========
     async function buscarPoster(nombreNovela) {
-        if (postersCache[nombreNovela] !== undefined) {
-            return postersCache[nombreNovela];
-        }
-        
+        if (postersCache[nombreNovela] !== undefined) return postersCache[nombreNovela];
         try {
             const response = await fetch(`/api/tmdb/poster?title=${encodeURIComponent(nombreNovela)}`);
             const data = await response.json();
-            
             if (data.posterUrl) {
                 postersCache[nombreNovela] = data.posterUrl;
                 return data.posterUrl;
             }
-            
             postersCache[nombreNovela] = null;
             return null;
         } catch (error) {
-            console.error('Error buscando poster:', error);
             postersCache[nombreNovela] = null;
             return null;
         }
@@ -990,9 +591,7 @@
     async function cargarPostersMultiples(novelas) {
         const titles = novelas.map(n => n.nombre);
         const titlesToFetch = titles.filter(t => postersCache[t] === undefined);
-        
         if (titlesToFetch.length === 0) return;
-        
         try {
             const response = await fetch('/api/tmdb/posters', {
                 method: 'POST',
@@ -1000,56 +599,47 @@
                 body: JSON.stringify({ titles: titlesToFetch })
             });
             const results = await response.json();
-            
             for (const [title, posterUrl] of Object.entries(results)) {
                 postersCache[title] = posterUrl;
             }
         } catch (error) {
-            console.error('Error cargando posters:', error);
-            for (const title of titlesToFetch) {
-                postersCache[title] = null;
-            }
+            for (const title of titlesToFetch) postersCache[title] = null;
         }
     }
 
+    // ========== BIBLIOTECA ==========
     async function cargarBiblioteca() {
         bibliotecaGrid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Cargando...</p></div>';
-        
         try {
             const response = await fetch('/api/novelas');
             novelasData = await response.json();
-            
+
             if (novelasData.length === 0) {
                 bibliotecaGrid.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-book-open"></i>
                         <h3>No hay novelas aún</h3>
                         <p>Ve a la pestaña "Scraping" para agregar contenido</p>
-                    </div>
-                `;
+                    </div>`;
                 document.getElementById('stats-container').style.display = 'none';
                 return;
             }
-            
+
             document.getElementById('stats-container').style.display = 'grid';
             const totalCaps = novelasData.reduce((sum, n) => sum + n.total_capitulos, 0);
-            
             document.getElementById('total-novelas').textContent = novelasData.length;
             document.getElementById('total-capitulos').textContent = totalCaps;
             document.getElementById('total-servidores').textContent = 'TMDB';
-            
-            // Cargar posters en batch
+
             await cargarPostersMultiples(novelasData);
             mostrarNovelas(novelasData);
         } catch (error) {
-            console.error('Error:', error);
             bibliotecaGrid.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-exclamation-triangle"></i>
                     <h3>Error de conexión</h3>
-                    <p>Verifica que el servidor esté corriendo: <strong>node server.js</strong></p>
-                </div>
-            `;
+                    <p>Verifica que el servidor esté corriendo</p>
+                </div>`;
         }
     }
 
@@ -1058,18 +648,14 @@
             bibliotecaGrid.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><h3>No se encontraron resultados</h3></div>';
             return;
         }
-        
         bibliotecaGrid.innerHTML = novelas.map(n => {
             const posterUrl = postersCache[n.nombre];
-            const posterHtml = posterUrl 
+            const posterHtml = posterUrl
                 ? `<img src="${posterUrl}" alt="${n.nombre}" onerror="this.parentElement.innerHTML='<i class=\'fas fa-tv\'></i>'">`
                 : `<i class="fas fa-tv"></i>`;
-            
             return `
                 <div class="novela-card" onclick="verCapitulos('${n.id}', '${n.nombre}')">
-                    <div class="novela-poster">
-                        ${posterHtml}
-                    </div>
+                    <div class="novela-poster">${posterHtml}</div>
                     <div class="novela-info">
                         <div class="novela-title">${escapeHtml(n.nombre)}</div>
                         <div class="novela-meta">
@@ -1077,8 +663,7 @@
                             <span class="badge-caps">HD</span>
                         </div>
                     </div>
-                </div>
-            `;
+                </div>`;
         }).join('');
     }
 
@@ -1094,19 +679,48 @@
         mostrarNovelas(filtradas);
     }
 
+    // ========== VER CAPÍTULOS ==========
     async function verCapitulos(id, nombre) {
         document.getElementById('modal-titulo').innerHTML = escapeHtml(nombre);
         document.getElementById('modal-capitulos').style.display = 'flex';
         document.getElementById('buscar-capitulo').value = '';
-        
+
         const container = document.getElementById('capitulos-lista');
         container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-        
+
         try {
             const response = await fetch(`/api/novela/${id}/capitulos`);
-            capitulosData = await response.json();
-            capitulosFiltrados = [...capitulosData];
-            mostrarCapitulos();
+            const data = await response.json();
+
+            // Si tiene temporadas (nuevo formato)
+            if (data.temporadas) {
+                let html = '';
+                for (const [numTemp, temp] of Object.entries(data.temporadas)) {
+                    html += `
+                        <div style="margin-bottom: 24px;">
+                            <h3 style="color: #e50914; margin-bottom: 12px; font-size: 16px;">
+                                📺 Temporada ${numTemp} (${temp.capitulos?.length || 0} caps)
+                            </h3>
+                            <div class="capitulos-grid-modal">
+                                ${(temp.capitulos || []).map(cap => `
+                                    <div class="capitulo-item" onclick='verServidores(${JSON.stringify(cap.servidores || [])}, "T${numTemp} - Capítulo ${cap.numero}")'>
+                                        <div class="capitulo-numero">Capítulo ${cap.numero}</div>
+                                        <div class="capitulo-titulo">${escapeHtml((cap.titulo || '').substring(0, 60))}</div>
+                                        <div class="servidor-badge">${cap.servidores?.length || 0} servidores</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+                container.innerHTML = html;
+            } else if (Array.isArray(data)) {
+                // Formato antiguo
+                capitulosData = data;
+                capitulosFiltrados = [...capitulosData];
+                mostrarCapitulos();
+            } else {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Formato no reconocido</h3></div>';
+            }
         } catch (error) {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error cargando capítulos</h3></div>';
         }
@@ -1114,14 +728,12 @@
 
     function mostrarCapitulos() {
         const container = document.getElementById('capitulos-lista');
-        
         if (capitulosFiltrados.length === 0) {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><h3>No se encontraron capítulos</h3></div>';
             return;
         }
-        
         container.innerHTML = capitulosFiltrados.map(cap => `
-            <div class="capitulo-item" onclick="verServidores(${JSON.stringify(cap.servidores).replace(/"/g, '&quot;')}, 'Capítulo ${cap.numero}')">
+            <div class="capitulo-item" onclick='verServidores(${JSON.stringify(cap.servidores || [])}, "Capítulo ${cap.numero}")'>
                 <div class="capitulo-numero">Capítulo ${cap.numero}</div>
                 <div class="capitulo-titulo">${escapeHtml(cap.titulo?.substring(0, 60) || '')}</div>
                 <div class="servidor-badge">${cap.servidores?.length || 0} servidores disponibles</div>
@@ -1134,23 +746,22 @@
         if (!term) {
             capitulosFiltrados = [...capitulosData];
         } else {
-            capitulosFiltrados = capitulosData.filter(c => 
-                c.numero.toString().includes(term) || 
+            capitulosFiltrados = capitulosData.filter(c =>
+                c.numero.toString().includes(term) ||
                 (c.titulo && c.titulo.toLowerCase().includes(term))
             );
         }
         mostrarCapitulos();
     }
 
+    // ========== VER SERVIDORES ==========
     function verServidores(servidores, titulo) {
         if (!servidores || servidores.length === 0) {
             alert('No hay servidores disponibles para este capítulo');
             return;
         }
-        
         document.getElementById('video-titulo').innerHTML = titulo;
         document.getElementById('modal-video').style.display = 'flex';
-        
         const container = document.getElementById('servidores-lista');
         container.innerHTML = `
             <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
@@ -1159,9 +770,7 @@
                         🎬 Servidor ${i+1}
                     </button>
                 `).join('')}
-            </div>
-        `;
-        
+            </div>`;
         reproducirVideo(servidores[0]);
     }
 
@@ -1173,13 +782,12 @@
         document.getElementById('video-frame').src = videoUrl;
     }
 
+    // ========== BUSCAR NOVELAS ==========
     async function buscarNovelas() {
         const titulo = document.getElementById('search-titulo').value;
         if (!titulo) return;
-        
         const container = document.getElementById('resultados-container');
         container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Buscando...</p></div>';
-        
         try {
             const response = await fetch('/api/buscar', {
                 method: 'POST',
@@ -1187,12 +795,10 @@
                 body: JSON.stringify({ titulo })
             });
             const resultados = await response.json();
-            
             if (resultados.length === 0) {
                 container.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><h3>No se encontraron resultados</h3></div>';
                 return;
             }
-            
             container.innerHTML = `
                 <div class="section-title" style="margin-top: 24px;"><i class="fas fa-list"></i><span>Resultados (${resultados.length})</span></div>
                 <div class="results-grid">
@@ -1205,8 +811,7 @@
                             </button>
                         </div>
                     `).join('')}
-                </div>
-            `;
+                </div>`;
         } catch (error) {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error en la búsqueda</h3></div>';
         }
@@ -1215,184 +820,145 @@
     function cargarUrlDirecta() {
         const url = document.getElementById('url-directa').value;
         if (!url) return;
-        
         const match = url.match(/\/tunovela\/([^\/]+)/);
         const nombre = match ? match[1].replace(/-/g, ' ').split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ') : 'Novela';
         seleccionarNovela(url, nombre);
     }
 
     function seleccionarNovela(url, titulo) {
-    document.getElementById('scraping-panel').style.display = 'block';
-    document.getElementById('scraping-titulo').innerHTML = `📥 ${escapeHtml(titulo)}`;
-    document.getElementById('scraping-url').value = url;
-    document.getElementById('scraping-progress').style.display = 'none';
-    document.getElementById('tmdb-id-input').value = '';
-    document.getElementById('tmdb-id-input').focus();
-    document.getElementById('scraping-panel').scrollIntoView({ behavior: 'smooth' });
-}
-
-   async function iniciarScraping() {
-    const url = document.getElementById('scraping-url').value;
-    const titulo = document.getElementById('scraping-titulo').innerHTML.replace('📥 ', '');
-    const limite = document.getElementById('limite-caps').value;
-    const tmdb_id = document.getElementById('tmdb-id-input').value.trim();
-    
-    if (!url) {
-        alert('Selecciona una novela primero');
-        return;
-    }
-    
-    if (!tmdb_id) {
-        alert('⚠️ Debes ingresar el TMDB ID manualmente.\n\nPuedes encontrarlo en la URL de TMDB:\nhttps://www.themoviedb.org/tv/12345-nombre');
+        document.getElementById('scraping-panel').style.display = 'block';
+        document.getElementById('scraping-titulo').innerHTML = `📥 ${escapeHtml(titulo)}`;
+        document.getElementById('scraping-url').value = url;
+        document.getElementById('scraping-progress').style.display = 'none';
+        document.getElementById('tmdb-id-input').value = '';
         document.getElementById('tmdb-id-input').focus();
-        return;
+        document.getElementById('scraping-panel').scrollIntoView({ behavior: 'smooth' });
     }
-    
-    const progressDiv = document.getElementById('scraping-progress');
-    const progressFill = document.getElementById('progress-fill');
-    const progressMsg = document.getElementById('progress-message');
-    
-    progressDiv.style.display = 'block';
-    progressFill.style.width = '0%';
-    progressMsg.innerHTML = 'Iniciando scraping...';
-    
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress = Math.min(progress + 10, 90);
-        progressFill.style.width = `${progress}%`;
-        if (progress < 30) progressMsg.innerHTML = 'Obteniendo lista de capítulos...';
-        else if (progress < 60) progressMsg.innerHTML = 'Procesando capítulos...';
-        else progressMsg.innerHTML = 'Guardando información...';
-    }, 500);
-    
-    try {
-        const response = await fetch('/api/scrape', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                url, 
-                nombre: titulo, 
-                limite: limite || null,
-                tmdb_id: tmdb_id
-            })
-        });
-        
-        const result = await response.json();
-        clearInterval(interval);
-        
-        if (result.success) {
-            progressFill.style.width = '100%';
-            progressMsg.innerHTML = `✅ ¡Scraping completado! (TMDB ID: ${result.tmdb_id})`;
-            setTimeout(() => {
-                progressDiv.style.display = 'none';
-                alert(`¡${titulo} fue agregada correctamente!`);
-                document.getElementById('scraping-panel').style.display = 'none';
-                document.getElementById('resultados-container').innerHTML = '';
-                document.getElementById('search-titulo').value = '';
-                document.getElementById('url-directa').value = '';
-                document.getElementById('tmdb-id-input').value = '';
-                document.querySelector('.tab-btn[data-tab="biblioteca"]').click();
-                cargarBiblioteca();
-            }, 1500);
-        } else {
-            throw new Error(result.error || 'Error desconocido');
-        }
-    } catch (error) {
-        clearInterval(interval);
-        progressDiv.style.display = 'none';
-        alert('Error en el scraping: ' + error.message);
-    }
-}
-/////////////////////////////////
 
-// ========== ADMIN: GUARDAR NOVELA ==========
-async function adminGuardarNovela() {
-    const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
-    const nombre = document.getElementById('admin-nombre').value.trim();
-    const poster = document.getElementById('admin-poster').value.trim();
-    const url = document.getElementById('admin-url').value.trim();
-    
-    if (!tmdb_id || !nombre) {
-        alert('Se requiere TMDB ID y nombre');
-        return;
-    }
-    
-    try {
-        const response = await fetch('/api/admin/novela', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tmdb_id, nombre, poster, url })
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            alert('✅ Novela guardada correctamente');
-            cargarBiblioteca();
-        } else {
-            alert('❌ Error: ' + result.error);
-        }
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}
+    // ========== INICIAR SCRAPING ==========
+    async function iniciarScraping() {
+        const url = document.getElementById('scraping-url').value;
+        const titulo = document.getElementById('scraping-titulo').innerHTML.replace('📥 ', '');
+        const limite = document.getElementById('limite-caps').value;
+        const tmdb_id = document.getElementById('tmdb-id-input').value.trim();
 
-// ========== ADMIN: CARGAR NOVELA ==========
-async function adminCargarNovela() {
-    const tmdb_id = document.getElementById('admin-buscar-tmdb').value.trim();
-    
-    if (!tmdb_id) {
-        alert('Ingresa un TMDB ID');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`/api/admin/novela/${tmdb_id}`);
-        const data = await response.json();
-        
-        if (data.error) {
-            alert('No encontrada: ' + data.error);
+        if (!url) { alert('Selecciona una novela primero'); return; }
+        if (!tmdb_id) {
+            alert('⚠️ Debes ingresar el TMDB ID manualmente.\n\nPuedes encontrarlo en la URL de TMDB:\nhttps://www.themoviedb.org/tv/12345-nombre');
+            document.getElementById('tmdb-id-input').focus();
             return;
         }
-        
-        // Llenar formularios
-        document.getElementById('admin-tmdb-id').value = data.tmdb_id || tmdb_id;
-        document.getElementById('admin-nombre').value = data.novela || '';
-        document.getElementById('admin-poster').value = data.poster || '';
-        document.getElementById('admin-url').value = data.url || '';
-        
-        // Mostrar capítulos
-        document.getElementById('admin-capitulos-panel').style.display = 'block';
-        adminMostrarCapitulos(data, tmdb_id);
-        
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}
 
-// ========== ADMIN: MOSTRAR CAPÍTULOS ==========
-function adminMostrarCapitulos(data, tmdbId) {
-    const container = document.getElementById('admin-lista-capitulos');
-    
-    if (!data.temporadas || Object.keys(data.temporadas).length === 0) {
-        container.innerHTML = '<p style="color: #808080;">No hay capítulos aún</p>';
-        return;
+        const progressDiv = document.getElementById('scraping-progress');
+        const progressFill = document.getElementById('progress-fill');
+        const progressMsg = document.getElementById('progress-message');
+
+        progressDiv.style.display = 'block';
+        progressFill.style.width = '0%';
+        progressMsg.innerHTML = 'Iniciando scraping...';
+
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress = Math.min(progress + 10, 90);
+            progressFill.style.width = `${progress}%`;
+            if (progress < 30) progressMsg.innerHTML = 'Obteniendo lista de capítulos...';
+            else if (progress < 60) progressMsg.innerHTML = 'Procesando capítulos...';
+            else progressMsg.innerHTML = 'Guardando información...';
+        }, 500);
+
+        try {
+            const response = await fetch('/api/scrape', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, nombre: titulo, limite: limite || null, tmdb_id })
+            });
+            const result = await response.json();
+            clearInterval(interval);
+            if (result.success) {
+                progressFill.style.width = '100%';
+                progressMsg.innerHTML = `✅ ¡Scraping completado! (TMDB ID: ${result.tmdb_id})`;
+                setTimeout(() => {
+                    progressDiv.style.display = 'none';
+                    alert(`¡${titulo} fue agregada correctamente!`);
+                    document.getElementById('scraping-panel').style.display = 'none';
+                    document.getElementById('resultados-container').innerHTML = '';
+                    document.getElementById('search-titulo').value = '';
+                    document.getElementById('url-directa').value = '';
+                    document.getElementById('tmdb-id-input').value = '';
+                    document.querySelector('.tab-btn[data-tab="biblioteca"]').click();
+                }, 1500);
+            } else {
+                throw new Error(result.error || 'Error desconocido');
+            }
+        } catch (error) {
+            clearInterval(interval);
+            progressDiv.style.display = 'none';
+            alert('Error en el scraping: ' + error.message);
+        }
     }
-    
-    let html = '';
-    for (const [numTemp, temp] of Object.entries(data.temporadas)) {
-        html += `
-            <div style="background: #2a2a2a; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
-                <h3 style="color: #e50914; margin-bottom: 12px;">
-                    Temporada ${numTemp} (${temp.capitulos?.length || 0} caps)
-                </h3>
-                <div style="display: grid; gap: 8px;">
+
+    // ========== ADMIN: GUARDAR NOVELA ==========
+    async function adminGuardarNovela() {
+        const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
+        const nombre = document.getElementById('admin-nombre').value.trim();
+        const poster = document.getElementById('admin-poster').value.trim();
+        const url = document.getElementById('admin-url').value.trim();
+
+        if (!tmdb_id || !nombre) { alert('Se requiere TMDB ID y nombre'); return; }
+
+        try {
+            const response = await fetch('/api/admin/novela', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tmdb_id, nombre, poster, url })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('✅ Novela guardada correctamente');
+                cargarBiblioteca();
+            } else {
+                alert('❌ Error: ' + result.error);
+            }
+        } catch (error) { alert('Error: ' + error.message); }
+    }
+
+    // ========== ADMIN: CARGAR NOVELA ==========
+    async function adminCargarNovela() {
+        const tmdb_id = document.getElementById('admin-buscar-tmdb').value.trim();
+        if (!tmdb_id) { alert('Ingresa un TMDB ID'); return; }
+
+        try {
+            const response = await fetch(`/api/admin/novela/${tmdb_id}`);
+            const data = await response.json();
+            if (data.error) { alert('No encontrada: ' + data.error); return; }
+
+            document.getElementById('admin-tmdb-id').value = data.tmdb_id || tmdb_id;
+            document.getElementById('admin-nombre').value = data.novela || '';
+            document.getElementById('admin-poster').value = data.poster || '';
+            document.getElementById('admin-url').value = data.url || '';
+
+            document.getElementById('admin-capitulos-panel').style.display = 'block';
+            adminMostrarCapitulos(data, tmdb_id);
+        } catch (error) { alert('Error: ' + error.message); }
+    }
+
+    // ========== ADMIN: MOSTRAR CAPÍTULOS ==========
+    function adminMostrarCapitulos(data, tmdbId) {
+        const container = document.getElementById('admin-lista-capitulos');
+        if (!data.temporadas || Object.keys(data.temporadas).length === 0) {
+            container.innerHTML = '<p style="color: #808080;">No hay capítulos aún</p>';
+            return;
+        }
+        let html = '';
+        for (const [numTemp, temp] of Object.entries(data.temporadas)) {
+            html += `
+                <div class="admin-section">
+                    <h3>Temporada ${numTemp} (${temp.capitulos?.length || 0} caps)</h3>
                     ${(temp.capitulos || []).map(cap => `
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 10px; border-radius: 8px;">
-                            <div style="flex: 1;">
+                        <div class="capitulo-admin-item">
+                            <div class="info">
                                 <strong>Cap. ${cap.numero}</strong> - ${escapeHtml(cap.titulo || '')}
-                                <div style="font-size: 11px; color: #666; margin-top: 4px;">
-                                    ${cap.servidores?.length || 0} servidores
-                                </div>
+                                <div class="servidores-count">${cap.servidores?.length || 0} servidores</div>
                             </div>
                             <button class="btn btn-outline" onclick="adminEditarCapitulo('${tmdbId}', '${numTemp}', ${cap.numero})" style="padding: 6px 12px; font-size: 12px;">
                                 <i class="fas fa-edit"></i>
@@ -1402,129 +968,99 @@ function adminMostrarCapitulos(data, tmdbId) {
                             </button>
                         </div>
                     `).join('')}
-                </div>
-            </div>
-        `;
-    }
-    
-    container.innerHTML = html;
-}
-
-// ========== ADMIN: EDITAR CAPÍTULO ==========
-async function adminEditarCapitulo(tmdbId, temporada, numero) {
-    try {
-        const response = await fetch(`/api/admin/novela/${tmdbId}`);
-        const data = await response.json();
-        
-        const temp = data.temporadas[temporada];
-        const cap = temp.capitulos.find(c => c.numero === numero);
-        
-        if (!cap) return;
-        
-        document.getElementById('admin-temporada').value = temporada;
-        document.getElementById('admin-cap-numero').value = cap.numero;
-        document.getElementById('admin-cap-titulo').value = cap.titulo || '';
-        document.getElementById('admin-cap-url').value = cap.url || '';
-        document.getElementById('admin-cap-servidores').value = (cap.servidores || []).join(', ');
-        
-        document.getElementById('admin-cap-numero').focus();
-    } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}
-
-// ========== ADMIN: GUARDAR CAPÍTULO ==========
-async function adminGuardarCapitulo() {
-    const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
-    const temporada = document.getElementById('admin-temporada').value.trim();
-    const numero = document.getElementById('admin-cap-numero').value.trim();
-    const titulo = document.getElementById('admin-cap-titulo').value.trim();
-    const url = document.getElementById('admin-cap-url').value.trim();
-    const servidoresStr = document.getElementById('admin-cap-servidores').value.trim();
-    
-    if (!tmdb_id || !temporada || !numero) {
-        alert('Se requiere TMDB ID, temporada y número');
-        return;
-    }
-    
-    const servidores = servidoresStr 
-        ? servidoresStr.split(',').map(s => s.trim()).filter(s => s)
-        : [];
-    
-    try {
-        const response = await fetch('/api/admin/capitulo', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tmdb_id, temporada, numero, titulo, url, servidores })
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            alert('✅ Capítulo guardado');
-            adminCargarNovela();
-        } else {
-            alert('❌ Error: ' + result.error);
+                </div>`;
         }
-    } catch (error) {
-        alert('Error: ' + error.message);
+        container.innerHTML = html;
     }
-}
 
-// ========== ADMIN: ELIMINAR CAPÍTULO ==========
-async function adminEliminarCapitulo(tmdbId, temporada, numero) {
-    if (!confirm(`¿Eliminar capítulo ${numero} de temporada ${temporada}?`)) return;
-    
-    try {
-        const response = await fetch('/api/admin/capitulo', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tmdb_id: tmdbId, temporada, numero })
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            alert('✅ Capítulo eliminado');
-            adminCargarNovela();
-        }
-    } catch (error) {
-        alert('Error: ' + error.message);
+    // ========== ADMIN: EDITAR CAPÍTULO ==========
+    async function adminEditarCapitulo(tmdbId, temporada, numero) {
+        try {
+            const response = await fetch(`/api/admin/novela/${tmdbId}`);
+            const data = await response.json();
+            const temp = data.temporadas[temporada];
+            const cap = temp.capitulos.find(c => c.numero === numero);
+            if (!cap) return;
+            document.getElementById('admin-temporada').value = temporada;
+            document.getElementById('admin-cap-numero').value = cap.numero;
+            document.getElementById('admin-cap-titulo').value = cap.titulo || '';
+            document.getElementById('admin-cap-url').value = cap.url || '';
+            document.getElementById('admin-cap-servidores').value = (cap.servidores || []).join(', ');
+            document.getElementById('admin-cap-numero').focus();
+        } catch (error) { alert('Error: ' + error.message); }
     }
-}
 
-// ========== ADMIN: ELIMINAR NOVELA ==========
-async function adminEliminarNovela() {
-    const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
-    
-    if (!tmdb_id) {
-        alert('Ingresa un TMDB ID');
-        return;
+    // ========== ADMIN: GUARDAR CAPÍTULO ==========
+    async function adminGuardarCapitulo() {
+        const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
+        const temporada = document.getElementById('admin-temporada').value.trim();
+        const numero = document.getElementById('admin-cap-numero').value.trim();
+        const titulo = document.getElementById('admin-cap-titulo').value.trim();
+        const url = document.getElementById('admin-cap-url').value.trim();
+        const servidoresStr = document.getElementById('admin-cap-servidores').value.trim();
+
+        if (!tmdb_id || !temporada || !numero) { alert('Se requiere TMDB ID, temporada y número'); return; }
+
+        const servidores = servidoresStr
+            ? servidoresStr.split(',').map(s => s.trim()).filter(s => s)
+            : [];
+
+        try {
+            const response = await fetch('/api/admin/capitulo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tmdb_id, temporada, numero, titulo, url, servidores })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('✅ Capítulo guardado');
+                adminCargarNovela();
+            } else {
+                alert('❌ Error: ' + result.error);
+            }
+        } catch (error) { alert('Error: ' + error.message); }
     }
-    
-    if (!confirm(`⚠️ ¿Eliminar COMPLETAMENTE la novela ${tmdb_id}?\n\nEsta acción no se puede deshacer.`)) return;
-    
-    try {
-        const response = await fetch(`/api/admin/novela/${tmdb_id}`, {
-            method: 'DELETE'
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            alert('✅ Novela eliminada');
-            document.getElementById('admin-capitulos-panel').style.display = 'none';
-            cargarBiblioteca();
-        }
-    } catch (error) {
-        alert('Error: ' + error.message);
+
+    // ========== ADMIN: ELIMINAR CAPÍTULO ==========
+    async function adminEliminarCapitulo(tmdbId, temporada, numero) {
+        if (!confirm(`¿Eliminar capítulo ${numero} de temporada ${temporada}?`)) return;
+        try {
+            const response = await fetch('/api/admin/capitulo', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tmdb_id: tmdbId, temporada, numero })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('✅ Capítulo eliminado');
+                adminCargarNovela();
+            }
+        } catch (error) { alert('Error: ' + error.message); }
     }
-}
 
-// ========== EVENT LISTENERS ADMIN ==========
-document.getElementById('btn-admin-guardar-novela')?.addEventListener('click', adminGuardarNovela);
-document.getElementById('btn-admin-cargar')?.addEventListener('click', adminCargarNovela);
-document.getElementById('btn-admin-guardar-cap')?.addEventListener('click', adminGuardarCapitulo);
+    // ========== ADMIN: ELIMINAR NOVELA ==========
+    async function adminEliminarNovela() {
+        const tmdb_id = document.getElementById('admin-tmdb-id').value.trim();
+        if (!tmdb_id) { alert('Ingresa un TMDB ID'); return; }
+        if (!confirm(`⚠️ ¿Eliminar COMPLETAMENTE la novela ${tmdb_id}?\n\nEsta acción no se puede deshacer.`)) return;
+        try {
+            const response = await fetch(`/api/admin/novela/${tmdb_id}`, { method: 'DELETE' });
+            const result = await response.json();
+            if (result.success) {
+                alert('✅ Novela eliminada');
+                document.getElementById('admin-capitulos-panel').style.display = 'none';
+                cargarBiblioteca();
+            }
+        } catch (error) { alert('Error: ' + error.message); }
+    }
 
+    // ========== EVENT LISTENERS ADMIN ==========
+    document.getElementById('btn-admin-guardar-novela')?.addEventListener('click', adminGuardarNovela);
+    document.getElementById('btn-admin-cargar')?.addEventListener('click', adminCargarNovela);
+    document.getElementById('btn-admin-guardar-cap')?.addEventListener('click', adminGuardarCapitulo);
+    document.getElementById('btn-admin-eliminar-novela')?.addEventListener('click', adminEliminarNovela);
 
-///////////////////////////////////////
+    // ========== MODALES ==========
     function cerrarModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
         if (modalId === 'modal-video') {
