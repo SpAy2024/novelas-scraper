@@ -460,15 +460,25 @@
                 </div>
 
                 <!-- Cargar novela para editar -->
-                <div class="admin-section">
-                    <h3>🔍 Cargar Novela para Editar</h3>
-                    <div class="url-input-group">
-                        <input type="text" id="admin-buscar-tmdb" placeholder="TMDB ID a editar">
-                        <button class="btn btn-outline" id="btn-admin-cargar">
-                            <i class="fas fa-search"></i> Cargar
-                        </button>
-                    </div>
-                </div>
+              <!-- Cargar novela para editar -->
+<div class="admin-section">
+    <h3>🔍 Cargar Novela para Editar</h3>
+    <div class="url-input-group">
+        <input type="text" id="admin-buscar-tmdb" placeholder="TMDB ID a editar">
+        <button class="btn btn-outline" id="btn-admin-cargar">
+            <i class="fas fa-search"></i> Cargar Existente
+        </button>
+    </div>
+    <div class="url-input-group" style="margin-top: 8px;">
+        <input type="text" id="admin-tmdb-estructura" placeholder="TMDB ID para cargar estructura (ej: 286993)">
+        <button class="btn btn-primary" id="btn-admin-cargar-estructura">
+            <i class="fas fa-cloud-download-alt"></i> Cargar desde TMDB
+        </button>
+    </div>
+    <p style="font-size: 12px; color: #808080; margin-top: 8px;">
+        💡 Esto carga todas las temporadas y capítulos de TMDB. Luego solo agregas las URLs de los servidores.
+    </p>
+</div>
 
                 <!-- Lista de capítulos para editar -->
                 <div id="admin-capitulos-panel" style="display: none;">
@@ -1053,6 +1063,59 @@
             }
         } catch (error) { alert('Error: ' + error.message); }
     }
+
+
+  // ========== ADMIN: CARGAR ESTRUCTURA DESDE TMDB ==========
+async function adminCargarEstructuraTMDB() {
+    const tmdb_id = document.getElementById('admin-tmdb-estructura').value.trim();
+
+    if (!tmdb_id) {
+        alert('Ingresa un TMDB ID');
+        return;
+    }
+
+    if (!confirm(`¿Cargar estructura de TMDB para ID ${tmdb_id}?\n\nEsto creará todas las temporadas y capítulos.\nLuego podrás agregar las URLs de los servidores.`)) {
+        return;
+    }
+
+    // Mostrar progreso
+    const btn = document.getElementById('btn-admin-cargar-estructura');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cargando...';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/admin/cargar-estructura-tmdb', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tmdb_id })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`✅ ${result.message}\n\nAhora carga la novela para agregar las URLs de los servidores.`);
+            
+            // Auto-cargar en el panel de edición
+            document.getElementById('admin-buscar-tmdb').value = tmdb_id;
+            await adminCargarNovela();
+            
+            // Limpiar campo
+            document.getElementById('admin-tmdb-estructura').value = '';
+        } else {
+            alert('❌ Error: ' + result.error);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+// ========== EVENT LISTENER ==========
+document.getElementById('btn-admin-cargar-estructura')?.addEventListener('click', adminCargarEstructuraTMDB);
+
 
     // ========== EVENT LISTENERS ADMIN ==========
     document.getElementById('btn-admin-guardar-novela')?.addEventListener('click', adminGuardarNovela);

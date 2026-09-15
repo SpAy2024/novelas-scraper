@@ -788,6 +788,109 @@ app.post('/api/scrape', async (req, res) => {
       
       await new Promise(r => setTimeout(r, 500));
     }
+
+
+
+    
+   // ============================================
+// ENDPOINT PARA CARGAR ESTRUCTURA DESDE TMDB
+// ============================================
+app.post('/api/admin/cargar-estructura-tmdb', async (req, res) => {
+  const { tmdb_id } = req.body;
+
+  if (!tmdb_id) {
+    return res.status(400).json({ error: 'Se requiere tmdb_id' });
+  }
+
+  console.log(`\n📥 Cargando estructura de TMDB para ID: ${tmdb_id}`);
+
+  try {
+    // 1. Obtener detalles de la serie (incluye lista de temporadas)
+    const tvUrl = `https://api.themoviedb.org/3/tv/${tmdb_id}?api_key=${TMDB_API_KEY}&language=es`;
+    const tvResponse = await axios.get(tvUrl);
+    const tvData = tvResponse.data;
+
+    console.log(`📺 Serie: ${tvData.name}`);
+    console.log(`📊 Temporadas: ${tvData.number_of_seasons}`);
+
+    // 2. Obtener detalles de cada temporada (episodios)
+    const temporadas = {};
+
+    for (const season of tvData.seasons || []) {
+      // Saltar temporada 0 (especiales) si no la quieres
+      if (season.season_number === 0) continue;
+
+      console.log(`  📂 Cargando temporada ${season.season_number}...`);
+
+      try {
+        const seasonUrl = `https://api.themoviedb.org/3/tv/${tmdb_id}/season/${season.season_number}?api_key=${TMDB_API_KEY}&language=es`;
+        const seasonResponse = await axios.get(seasonUrl);
+        const seasonData = seasonResponse.data;
+
+        // Construir capítulos con estructura compatible
+        const capitulos = (seasonData.episodes || []).map(ep => ({
+          numero: ep.episode_number,
+          titulo: ep.name || `Capítulo ${ep.episode_number}`,
+          url: '', // ← Vacío para que tú agregues la URL
+          servidores: [] // ← Vacío para que tú agregues los servidores
+        }));
+
+        temporadas[season.season_number] = {
+          titulo: seasonData.name || `Temporada ${season.season_number}`,
+          fecha_extraccion: new Date().toISOString(),
+          total_capitulos: capitulos.length,
+          capitulos: capitulos
+        };
+
+        console.log(`    ✅ ${capitulos.length} capítulos`);
+
+        // Pequeña pausa para no saturar la API
+        await new Promise(r => setTimeout(r, 200));
+
+      } catch (seasonError) {
+        console.error(`    ❌ Error en temporada ${season.season_number}:`, seasonError.message);
+      }
+    }
+
+    // 3. Calcular totales
+    const totalTemporadas = Object.keys(temporadas).length;
+    const totalCapitulos = Object.values(temporadas)
+      .reduce((sum, t) => sum + t.total_capitulos, 0);
+
+    // 4. Construir estructura de la novela
+    const datos = {
+      novela: tvData.name,
+      tmdb_id: parseInt(tmdb_id),
+      poster: tvData.poster_path ? `${TMDB_IMAGE_BASE}${tvData.poster_path}` : null,
+      url: null,
+      temporadas: temporadas,
+      total_temporadas: totalTemporadas,
+      total_capitulos: totalCapitulos,
+      fecha_creacion: new Date().toISOString(),
+      fecha_actualizacion: new Date().toISOString()
+    };
+
+    // 5. Guardar en GitHub y Firebase
+    await guardarEnGitHub(`${tmdb_id}_capitulos.json`, datos);
+    await guardarEnFirebase(tmdb_id.toString(), datos);
+
+    console.log(`✅ Estructura guardada: ${totalTemporadas} temporadas, ${totalCapitulos} capítulos`);
+
+    res.json({
+      success: true,
+      message: `Estructura cargada: ${totalTemporadas} temporadas, ${totalCapitulos} capítulos`,
+      data: datos
+    });
+
+  } catch (error) {
+    console.error('❌ Error cargando estructura:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
     
     // ========== AGREGAR TEMPORADA A LA ESTRUCTURA ==========
     datosExistentes.temporadas[temporada] = {
