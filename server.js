@@ -621,20 +621,40 @@ app.get('/api/admin/novela/:tmdbId', async (req, res) => {
 
 
 // Obtener todas las novelas
+// Obtener todas las novelas
 app.get('/api/novelas', async (req, res) => {
   try {
-    const files = await listarArchivosGitHub();
     const novelas = [];
     
-    for (const file of files) {
-      const data = await leerDeGitHub(file.name);
-      if (data) {
+    // Obtener de Firebase
+    const novelasFirebase = await listarNovelasFirebase();
+    
+    if (novelasFirebase.length > 0) {
+      for (const n of novelasFirebase) {
         novelas.push({
-          id: file.name.replace('_capitulos.json', ''),
-          nombre: data.novela,
-          total_capitulos: data.total_capitulos,
-          fecha: data.fecha_extraccion
+          id: n.tmdb_id || n.id,
+          nombre: n.novela,
+          total_capitulos: n.total_capitulos || 0,
+          total_temporadas: n.total_temporadas || 0,
+          fecha: n.fecha_actualizacion || n.fecha_extraccion || n.fecha_creacion,
+          poster: n.poster || null
         });
+      }
+    } else {
+      // Fallback a GitHub
+      const files = await listarArchivosGitHub();
+      for (const file of files) {
+        const data = await leerDeGitHub(file.name);
+        if (data) {
+          novelas.push({
+            id: file.name.replace('_capitulos.json', ''),
+            nombre: data.novela,
+            total_capitulos: data.total_capitulos || 0,
+            total_temporadas: data.total_temporadas || 0,
+            fecha: data.fecha_actualizacion || data.fecha_extraccion,
+            poster: data.poster || null
+          });
+        }
       }
     }
     
@@ -646,18 +666,27 @@ app.get('/api/novelas', async (req, res) => {
 });
 
 // Obtener capítulos de una novela
+// Obtener capítulos de una novela (soporta formato antiguo y nuevo)
 app.get('/api/novela/:id/capitulos', async (req, res) => {
   try {
-    const fileName = `${req.params.id}_capitulos.json`;
-    const data = await leerDeGitHub(fileName);
+    // Buscar en Firebase primero
+    let data = await leerDeFirebase(req.params.id);
     
-    if (data) {
-      res.json(data.capitulos);
-    } else {
-      res.status(404).json({ error: 'Novela no encontrada' });
+    // Si no está en Firebase, buscar en GitHub
+    if (!data) {
+      data = await leerDeGitHub(`${req.params.id}_capitulos.json`);
     }
+    
+    if (!data) {
+      return res.status(404).json({ error: 'Novela no encontrada' });
+    }
+    
+    // ✅ Devolver la estructura completa (con temporadas o capítulos)
+    res.json(data);
+    
   } catch (error) {
-    res.status(404).json({ error: 'Error al cargar' });
+    console.error('Error al cargar capítulos:', error.message);
+    res.status(500).json({ error: 'Error al cargar' });
   }
 });
 
