@@ -945,7 +945,6 @@ app.post('/api/admin/cargar-estructura-tmdb', async (req, res) => {
   console.log(`\n📥 Cargando estructura de TMDB para ID: ${tmdb_id}`);
 
   try {
-    // 1. Obtener detalles de la serie (incluye lista de temporadas)
     const tvUrl = `https://api.themoviedb.org/3/tv/${tmdb_id}?api_key=${TMDB_API_KEY}&language=es`;
     const tvResponse = await axios.get(tvUrl);
     const tvData = tvResponse.data;
@@ -953,11 +952,10 @@ app.post('/api/admin/cargar-estructura-tmdb', async (req, res) => {
     console.log(`📺 Serie: ${tvData.name}`);
     console.log(`📊 Temporadas: ${tvData.number_of_seasons}`);
 
-    // 2. Obtener detalles de cada temporada (episodios)
+    // ✅ USAR OBJETO CON CLAVES STRING
     const temporadas = {};
 
     for (const season of tvData.seasons || []) {
-      // Saltar temporada 0 (especiales) si no la quieres
       if (season.season_number === 0) continue;
 
       console.log(`  📂 Cargando temporada ${season.season_number}...`);
@@ -967,15 +965,16 @@ app.post('/api/admin/cargar-estructura-tmdb', async (req, res) => {
         const seasonResponse = await axios.get(seasonUrl);
         const seasonData = seasonResponse.data;
 
-        // Construir capítulos con estructura compatible
         const capitulos = (seasonData.episodes || []).map(ep => ({
           numero: ep.episode_number,
           titulo: ep.name || `Capítulo ${ep.episode_number}`,
-          url: '', // ← Vacío para que tú agregues la URL
-          servidores: [] // ← Vacío para que tú agregues los servidores
+          url: '',
+          servidores: []
         }));
 
-        temporadas[season.season_number] = {
+        // ✅ CLAVE CON PREFIJO "temp_" para evitar conversión a array
+        temporadas[`temp_${season.season_number}`] = {
+          numero: season.season_number,  // ← Guardar el número también
           titulo: seasonData.name || `Temporada ${season.season_number}`,
           fecha_extraccion: new Date().toISOString(),
           total_capitulos: capitulos.length,
@@ -984,7 +983,6 @@ app.post('/api/admin/cargar-estructura-tmdb', async (req, res) => {
 
         console.log(`    ✅ ${capitulos.length} capítulos`);
 
-        // Pequeña pausa para no saturar la API
         await new Promise(r => setTimeout(r, 200));
 
       } catch (seasonError) {
@@ -992,12 +990,10 @@ app.post('/api/admin/cargar-estructura-tmdb', async (req, res) => {
       }
     }
 
-    // 3. Calcular totales
     const totalTemporadas = Object.keys(temporadas).length;
     const totalCapitulos = Object.values(temporadas)
       .reduce((sum, t) => sum + t.total_capitulos, 0);
 
-    // 4. Construir estructura de la novela
     const datos = {
       novela: tvData.name,
       tmdb_id: parseInt(tmdb_id),
@@ -1010,7 +1006,6 @@ app.post('/api/admin/cargar-estructura-tmdb', async (req, res) => {
       fecha_actualizacion: new Date().toISOString()
     };
 
-    // 5. Guardar en GitHub y Firebase
     await guardarEnGitHub(`${tmdb_id}_capitulos.json`, datos);
     await guardarEnFirebase(tmdb_id.toString(), datos);
 

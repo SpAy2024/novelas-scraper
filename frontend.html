@@ -690,51 +690,90 @@
     }
 
     // ========== VER CAPÍTULOS ==========
-    async function verCapitulos(id, nombre) {
-        document.getElementById('modal-titulo').innerHTML = escapeHtml(nombre);
-        document.getElementById('modal-capitulos').style.display = 'flex';
-        document.getElementById('buscar-capitulo').value = '';
+   async function verCapitulos(id, nombre) {
+    document.getElementById('modal-titulo').innerHTML = escapeHtml(nombre);
+    document.getElementById('modal-capitulos').style.display = 'flex';
+    document.getElementById('buscar-capitulo').value = '';
 
-        const container = document.getElementById('capitulos-lista');
-        container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const container = document.getElementById('capitulos-lista');
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
-        try {
-            const response = await fetch(`/api/novela/${id}/capitulos`);
-            const data = await response.json();
+    try {
+        const response = await fetch(`/api/novela/${id}/capitulos`);
+        const data = await response.json();
 
-            // Si tiene temporadas (nuevo formato)
-            if (data.temporadas) {
-                let html = '';
-                for (const [numTemp, temp] of Object.entries(data.temporadas)) {
-                    html += `
-                        <div style="margin-bottom: 24px;">
-                            <h3 style="color: #e50914; margin-bottom: 12px; font-size: 16px;">
-                                📺 Temporada ${numTemp} (${temp.capitulos?.length || 0} caps)
-                            </h3>
-                            <div class="capitulos-grid-modal">
-                                ${(temp.capitulos || []).map(cap => `
-                                    <div class="capitulo-item" onclick='verServidores(${JSON.stringify(cap.servidores || [])}, "T${numTemp} - Capítulo ${cap.numero}")'>
-                                        <div class="capitulo-numero">Capítulo ${cap.numero}</div>
-                                        <div class="capitulo-titulo">${escapeHtml((cap.titulo || '').substring(0, 60))}</div>
-                                        <div class="servidor-badge">${cap.servidores?.length || 0} servidores</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>`;
-                }
-                container.innerHTML = html;
-            } else if (Array.isArray(data)) {
-                // Formato antiguo
-                capitulosData = data;
-                capitulosFiltrados = [...capitulosData];
-                mostrarCapitulos();
-            } else {
-                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Formato no reconocido</h3></div>';
+        // ✅ NUEVO FORMATO: objeto con claves temp_X
+        if (data.temporadas && typeof data.temporadas === 'object' && !Array.isArray(data.temporadas)) {
+            let html = '';
+            
+            // Ordenar temporadas por número
+            const tempsOrdenadas = Object.entries(data.temporadas)
+                .map(([key, temp]) => ({
+                    key,
+                    numero: temp.numero || parseInt(key.replace('temp_', '')) || 0,
+                    ...temp
+                }))
+                .sort((a, b) => a.numero - b.numero);
+            
+            for (const temp of tempsOrdenadas) {
+                html += `
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #e50914; margin-bottom: 12px; font-size: 16px;">
+                            📺 ${escapeHtml(temp.titulo)} (${temp.capitulos?.length || 0} caps)
+                        </h3>
+                        <div class="capitulos-grid-modal">
+                            ${(temp.capitulos || []).map(cap => `
+                                <div class="capitulo-item" onclick='verServidores(${JSON.stringify(cap.servidores || [])}, "T${temp.numero} - Capítulo ${cap.numero}")'>
+                                    <div class="capitulo-numero">Capítulo ${cap.numero}</div>
+                                    <div class="capitulo-titulo">${escapeHtml((cap.titulo || '').substring(0, 60))}</div>
+                                    <div class="servidor-badge">${cap.servidores?.length || 0} servidores</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
             }
-        } catch (error) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error cargando capítulos</h3></div>';
+            container.innerHTML = html;
         }
+        // FORMATO ANTIGUO: array de capítulos
+        else if (Array.isArray(data)) {
+            capitulosData = data;
+            capitulosFiltrados = [...capitulosData];
+            mostrarCapitulos();
+        }
+        // FORMATO INTERMEDIO (el que tienes ahora): array con null
+        else if (Array.isArray(data.temporadas)) {
+            let html = '';
+            const tempsValidas = data.temporadas.filter(t => t !== null);
+            
+            for (let i = 0; i < tempsValidas.length; i++) {
+                const temp = tempsValidas[i];
+                html += `
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="color: #e50914; margin-bottom: 12px; font-size: 16px;">
+                            📺 ${escapeHtml(temp.titulo)} (${temp.capitulos?.length || 0} caps)
+                        </h3>
+                        <div class="capitulos-grid-modal">
+                            ${(temp.capitulos || []).map(cap => `
+                                <div class="capitulo-item" onclick='verServidores(${JSON.stringify(cap.servidores || [])}, "Capítulo ${cap.numero}")'>
+                                    <div class="capitulo-numero">Capítulo ${cap.numero}</div>
+                                    <div class="capitulo-titulo">${escapeHtml((cap.titulo || '').substring(0, 60))}</div>
+                                    <div class="servidor-badge">${cap.servidores?.length || 0} servidores</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }
+            container.innerHTML = html;
+        }
+        else {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Formato no reconocido</h3></div>';
+        }
+    } catch (error) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error cargando capítulos</h3></div>';
     }
+}
+
+
 
     function mostrarCapitulos() {
         const container = document.getElementById('capitulos-lista');
