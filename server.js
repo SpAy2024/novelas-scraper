@@ -2,12 +2,16 @@ const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
 const cors = require('cors');
+const axios = require('axios');
 const puppeteer = require('puppeteer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = './data';
 const BASE_SITE = 'https://ojeonovelas.com';
+
+const TMDB_API_KEY = '55c0bb848e296dd8d81046079236067d';
+const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
 
 // ============================================
 // CONFIGURACIÓN DE FIREBASE
@@ -33,11 +37,10 @@ try {
     firebaseInicializado = true;
     console.log('✅ Firebase inicializado correctamente');
   } else {
-    console.warn('⚠️ FIREBASE_SERVICE_ACCOUNT no configurada. Usando solo JSON local.');
+    console.warn('⚠️ FIREBASE_SERVICE_ACCOUNT no configurada.');
   }
 } catch (error) {
   console.warn('⚠️ Firebase no disponible:', error.message);
-  firebaseInicializado = false;
 }
 
 app.use(cors());
@@ -51,10 +54,8 @@ async function guardarEnFirebase(tmdbId, data) {
   if (!firebaseInicializado) return false;
   try {
     await db.ref(`novelas/${tmdbId}`).set(data);
-    console.log(`✅ Guardado en Firebase: ${tmdbId}`);
     return true;
   } catch (error) {
-    console.error('❌ Error en Firebase:', error.message);
     return false;
   }
 }
@@ -91,13 +92,43 @@ async function leerJSONLocal(nombreArchivo) {
 }
 
 // ============================================
-// ENDPOINTS PÚBLICOS (LEEN DE FIREBASE O LOCAL)
+// ENDPOINTS TMDB (PARA LAS IMÁGENES)
+// ============================================
+app.post('/api/tmdb/posters', async (req, res) => {
+  const { titles } = req.body;
+  if (!titles || !Array.isArray(titles)) return res.status(400).json({ error: 'Faltan títulos' });
+
+  const results = {};
+  for (const title of titles) {
+    try {
+      const tvUrl = `https://api.themoviedb.org/3/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&language=es`;
+      const tvResponse = await axios.get(tvUrl);
+
+      if (tvResponse.data.results && tvResponse.data.results.length > 0 && tvResponse.data.results[0].poster_path) {
+        results[title] = `${TMDB_IMAGE_BASE}${tvResponse.data.results[0].poster_path}`;
+      } else {
+        const movieUrl = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&language=es`;
+        const movieResponse = await axios.get(movieUrl);
+        if (movieResponse.data.results && movieResponse.data.results.length > 0 && movieResponse.data.results[0].poster_path) {
+          results[title] = `${TMDB_IMAGE_BASE}${movieResponse.data.results[0].poster_path}`;
+        } else {
+          results[title] = null;
+        }
+      }
+    } catch (error) {
+      results[title] = null;
+    }
+  }
+  res.json(results);
+});
+
+// ============================================
+// ENDPOINTS PÚBLICOS
 // ============================================
 app.get('/api/novelas', async (req, res) => {
   try {
     let novelas = await listarNovelasFirebase();
     
-    // Si Firebase está vacío, leer locales
     if (novelas.length === 0) {
       const files = await fs.readdir(DATA_DIR).catch(() => []);
       for (const file of files) {
@@ -123,14 +154,11 @@ app.get('/api/novelas', async (req, res) => {
 app.get('/api/novela/:id/capitulos', async (req, res) => {
   try {
     let data = await leerDeFirebase(req.params.id);
-    
-    if (!data) {
-      data = await leerJSONLocal(`${req.params.id}_capitulos.json`);
-    }
-    
+    if (!data) data = await leerJSONLocal(`${req.params.id}_capitulos.json`);
     if (!data) return res.status(404).json({ error: 'No encontrada' });
 
-    // Formatear para tu frontend
+    // ✅ ESTO ES LO QUE ARREGLA EL MODAL "undefined"
+    // Le damos el formato exacto que tu frontend espera.
     const respuesta = {
       novela: data.novela,
       total_temporadas: 1,
@@ -139,8 +167,8 @@ app.get('/api/novela/:id/capitulos', async (req, res) => {
         "temp_1": {
           numero: 1,
           titulo: "Temporada 1",
-          total_capitulos: data.total_capitulos,
-          capitulos: data.capitulos
+          total_capitulos: data.capitulos ? data.capitulos.length : 0,
+          capitulos: data.capitulos || []
         }
       }
     };
@@ -151,14 +179,11 @@ app.get('/api/novela/:id/capitulos', async (req, res) => {
 });
 
 // ============================================
-// SCRAPING CON PUPPETEER (GUARDA EN FIREBASE)
+// SCRAPING CON PUPPETEER
 // ============================================
 app.post('/api/scrape', async (req, res) => {
   const { url, nombre, limite, tmdb_id } = req.body;
-
-  if (!url || !nombre || !tmdb_id) {
-    return res.status(400).json({ error: 'Se requiere URL, nombre y tmdb_id' });
-  }
+  if (!url || !nombre || !tmdb_id) return res.status(400).json({ error: 'Faltan datos' });
 
   console.log(`\n🚀 Iniciando scraping de: ${nombre}`);
   let browser = null;
@@ -172,13 +197,10 @@ app.post('/api/scrape', async (req, res) => {
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     
-    // 1. Obtener lista de capítulos
     const matchSlug = url.match(/\/novela\/([^\/]+)/);
     if (!matchSlug) throw new Error('URL inválida');
     const slug = matchSlug[1];
 
-    console.log(`🔗 Slug: ${slug}. Buscando capítulos...`);
-    
     let capitulosEncontrados = [];
     let fallosConsecutivos = 0;
     let numero = 1;
@@ -201,18 +223,12 @@ app.post('/api/scrape', async (req, res) => {
       await new Promise(r => setTimeout(r, 300));
     }
 
-    console.log(`✅ Encontrados ${capitulosEncontrados.length} capítulos`);
-
-    // Aplicar límite si el usuario lo pidió
     const limiteNum = limite ? parseInt(limite) : null;
     const procesar = limiteNum ? capitulosEncontrados.slice(0, limiteNum) : capitulosEncontrados;
 
-    // 2. Extraer servidores de cada capítulo
     const resultados = [];
     for (let i = 0; i < procesar.length; i++) {
       const cap = procesar[i];
-      console.log(`🎬 Procesando capítulo ${cap.numero} (${i+1}/${procesar.length})`);
-      
       try {
         await page.goto(cap.url, { waitUntil: 'networkidle2', timeout: 60000 });
         try { await page.waitForSelector('button[data-u]', { timeout: 10000 }); } catch (e) {}
@@ -227,9 +243,7 @@ app.post('/api/scrape', async (req, res) => {
             try {
               const base64Decodificado = atob(dataU); 
               const urlFinal = base64Decodificado.split('').reverse().join('');
-              if (urlFinal.startsWith('http')) {
-                servidores.push({ nombre, url: urlFinal });
-              }
+              if (urlFinal.startsWith('http')) servidores.push({ nombre, url: urlFinal });
             } catch (e) {}
           });
           return { titulo: tituloDOM, servidores };
@@ -249,39 +263,27 @@ app.post('/api/scrape', async (req, res) => {
 
     await browser.close();
 
-    // 3. Guardar en Firebase
     const datosFinales = {
       novela: nombre,
       tmdb_id: parseInt(tmdb_id),
       total_capitulos: resultados.length,
       fecha_extraccion: new Date().toISOString(),
-      capitulos: resultados
+      capitulos: resultados // <-- Aquí se guarda la lista
     };
 
     await guardarEnFirebase(tmdb_id, datosFinales);
-
-    res.json({
-      success: true,
-      message: `Scraping completado: ${resultados.length} capítulos`,
-      total_capitulos: resultados.length
-    });
+    res.json({ success: true, message: `Scraping completado: ${resultados.length} capítulos` });
 
   } catch (error) {
     if (browser) await browser.close();
-    console.error('❌ Error en scraping:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
 
-// ============================================
-// RUTA PRINCIPAL
-// ============================================
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`\n========================================`);
-  console.log(`✅ Servidor listo en http://localhost:${PORT}`);
-  console.log(`========================================\n`);
+  console.log(`\n✅ Servidor listo en http://localhost:${PORT}\n`);
 });
