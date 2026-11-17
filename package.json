@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "scraper": "node scraper.js"
+    "scraper": "node scraper.js",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
   "dependencies": {
     "@octokit/rest": "^20.1.2",
