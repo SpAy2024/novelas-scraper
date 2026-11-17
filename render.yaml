@@ -3,10 +3,12 @@ services:
     name: novelas-scraper
     runtime: node
     plan: free
-    buildCommand: npm install && npx puppeteer browsers install chrome
+    buildCommand: npm install && PUPPETEER_CACHE_DIR=./.puppeteer-cache npx puppeteer browsers install chrome
     startCommand: node server.js
     envVars:
       - key: NODE_VERSION
         value: 20.11.0
       - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
         value: "false"
+      - key: PUPPETEER_CACHE_DIR
+        value: ./.puppeteer-cache
