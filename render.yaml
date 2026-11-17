@@ -1,12 +1,12 @@
-# render.yaml
 services:
   - type: web
     name: novelas-scraper
     runtime: node
-    repo: https://github.com/SpAy2024/novelas-scraper
     plan: free
+    buildCommand: npm install && npx puppeteer browsers install chrome
+    startCommand: node server.js
     envVars:
       - key: NODE_VERSION
-        value: 18.17.0
-    buildCommand: npm install
-    startCommand: node server.js
+        value: 20.11.0
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "false"

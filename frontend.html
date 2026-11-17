@@ -804,6 +804,7 @@
     }
 
     // ========== VER SERVIDORES ==========
+        // ========== VER SERVIDORES ==========
     function verServidores(servidores, titulo) {
         if (!servidores || servidores.length === 0) {
             alert('No hay servidores disponibles para este capítulo');
@@ -812,17 +813,18 @@
         document.getElementById('video-titulo').innerHTML = titulo;
         document.getElementById('modal-video').style.display = 'flex';
         const container = document.getElementById('servidores-lista');
+        
+        // Adaptado para leer los objetos { nombre, url }
         container.innerHTML = `
             <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-                ${servidores.map((url, i) => `
-                    <button class="btn btn-outline" onclick="reproducirVideo('${url}')" style="padding: 10px 20px;">
-                        🎬 Servidor ${i+1}
+                ${servidores.map((srv) => `
+                    <button class="btn btn-outline" onclick="reproducirVideo('${srv.url}')" style="padding: 10px 20px;">
+                        🎬 ${srv.nombre}
                     </button>
                 `).join('')}
             </div>`;
-        reproducirVideo(servidores[0]);
+        reproducirVideo(servidores[0].url);
     }
-
     function reproducirVideo(url) {
         let videoUrl = url;
         if (url.includes('filemoon')) videoUrl = url.replace('/e/', '/embed/');
